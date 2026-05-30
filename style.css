@@ -368,6 +368,53 @@ html, body {
   transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
+.stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: auto;
+}
+
+.stage-device-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.stage-device-toggle:hover {
+  background: var(--theme-btn-hover);
+  color: var(--text-primary);
+  border-color: var(--border-intense);
+  transform: translateY(-1px);
+}
+
+.stage-device-toggle.active {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: #a78bfa;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.15);
+}
+
+.light-theme .stage-device-toggle.active {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #7c3aed;
+}
+
+.stage-device-toggle:active {
+  transform: translateY(0);
+}
+
 .stage-replay {
   pointer-events: auto;
   display: flex;
@@ -470,6 +517,146 @@ html, body {
   justify-content: center;
   position: relative;
   z-index: 3;
+}
+
+/* Phone Frame Layout when mobile view is active */
+.app.mobile-active .main-content {
+  flex-direction: row;
+  transition: flex-direction 0.3s ease;
+}
+
+.app.mobile-active .preview-stage {
+  flex: 1;
+  border-bottom: none;
+  border-right: 1px solid var(--border);
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%), var(--bg-app);
+}
+
+.app.mobile-active .bottom-panel {
+  width: 380px;
+  height: 100%;
+  flex-direction: column;
+  border-top: none;
+  border-left: 1px solid var(--border);
+  transition: width 0.3s ease, flex-direction 0.3s ease;
+}
+
+.app.mobile-active .bp-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0.75rem 0;
+  background: var(--border);
+}
+
+.app.mobile-active .ctrl-grid {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+/* iPhone SE Device Mockup Viewport (Exactly 320x568) */
+.app.mobile-active .stage-scene {
+  width: 320px;
+  height: 568px;
+  background: var(--bg-code);
+  border: 12px solid #1a1a24;
+  border-top: 55px solid #1a1a24;
+  border-bottom: 65px solid #1a1a24;
+  border-radius: 40px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 
+              0 0 45px rgba(167, 139, 250, 0.12),
+              inset 0 0 10px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden; /* Clips all preview animations exactly to the iPhone SE screen bounds */
+  box-sizing: content-box;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: phoneAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.light-theme .app.mobile-active .stage-scene {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  border-top-color: #e2e8f0;
+  border-bottom-color: #e2e8f0;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.15), 
+              0 0 30px rgba(124, 58, 237, 0.05),
+              inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Override display none to show flex when active */
+.app.mobile-active .stage-scene[style*="display: flex"],
+.app.mobile-active .stage-scene[style*="display:flex"] {
+  display: flex !important;
+}
+
+@keyframes phoneAppear {
+  from {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Speaker Notch / Camera Lens on Bezel (iPhone SE style) */
+.app.mobile-active .preview-stage::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 284px - 32px); /* Centered in top bezel */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 5px;
+  background: #27273a;
+  border-radius: 3px;
+  z-index: 10;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.light-theme .app.mobile-active .preview-stage::before {
+  background: #cbd5e1;
+}
+
+/* Home Button on Bezel (iPhone SE style) */
+.app.mobile-active .preview-stage::after {
+  content: "";
+  position: absolute;
+  top: calc(50% + 284px + 12px); /* Centered in bottom bezel */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42px;
+  height: 42px;
+  border: 2px solid #27273a;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.light-theme .app.mobile-active .preview-stage::after {
+  border-color: #cbd5e1;
+}
+
+/* Ensure preview cards and templates behave perfectly within mobile bounds */
+.app.mobile-active .stage-scene .anim-target {
+  max-width: 90% !important;
+  box-sizing: border-box;
+}
+
+/* Adjust glitch texts and large fonts for smaller iPhone SE screen */
+.app.mobile-active .stage-scene .glitch-text {
+  font-size: 2.2rem !important;
+}
+.app.mobile-active .stage-scene .reveal-title {
+  font-size: 1.6rem !important;
+}
+.app.mobile-active .stage-scene .reveal-title.subtitle {
+  font-size: 1.2rem !important;
+}
+.app.mobile-active .stage-scene .wave-loader .wave-dot {
+  width: 10px !important;
+  height: 10px !important;
 }
 
 /* ================================================================

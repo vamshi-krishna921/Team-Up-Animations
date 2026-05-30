@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const stageScene    = document.getElementById('stageScene');
   const stageAnimName = document.getElementById('stageAnimName');
   const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const deviceToggleBtn = document.getElementById('deviceToggleBtn');
+  const previewStage    = document.getElementById('previewStage');
 
   // Theme Logic
   const savedTheme = localStorage.getItem('theme');
@@ -32,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('light-theme');
     const theme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
     localStorage.setItem('theme', theme);
+  });
+
+  // Mobile Layout Toggle Logic
+  deviceToggleBtn.addEventListener('click', () => {
+    document.querySelector('.app').classList.toggle('mobile-active');
+    deviceToggleBtn.classList.toggle('active');
   });
 
   // Controls
