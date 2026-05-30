@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flutter Animation Preview — Team Up</title>
-  <meta name="description" content="Interactive animation preview with contextual Flutter JSON export for mobile apps." />
+  <title>Animation Preview — Team Up</title>
+  <meta name="description"
+    content="Interactive animation preview with contextual Flutter JSON export for mobile apps." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="app">
 
@@ -17,21 +20,35 @@
         <div class="sb-logo">
           <span class="sb-star">✦</span>
           <div class="sb-titles">
-            <span class="sb-name">Team Up</span>
+            <span class="sb-name">Up-Studio</span>
             <span class="sb-tagline">Animations</span>
           </div>
         </div>
         <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Theme">
-          <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <svg class="moon-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="moon-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
         </button>
       </div>
       <div class="sb-sep"></div>
       <div class="sb-section-lbl">25 ANIMATIONS</div>
-        <div class="search-container">
-          <input type="text" id="searchInput" placeholder="Search animations..." class="search-input" />
-        </div>
-        <nav class="sb-nav">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search animations..." class="search-input" />
+      </div>
+      <nav class="sb-nav">
         <button class="sb-item" data-name="Slide Up" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">⬆</div>
           <div class="sb-meta"><span class="sb-iname">Slide Up</span><span class="sb-tag t-pos">Position</span></div>
@@ -54,11 +71,13 @@
         </button>
         <button class="sb-item" data-name="Sidebar Collapse" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#fa709a,#fee140)">◀</div>
-          <div class="sb-meta"><span class="sb-iname">Sidebar Collapse</span><span class="sb-tag t-lay">Layout</span></div>
+          <div class="sb-meta"><span class="sb-iname">Sidebar Collapse</span><span class="sb-tag t-lay">Layout</span>
+          </div>
         </button>
         <button class="sb-item" data-name="Navigation Bar Slide" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">📌</div>
-          <div class="sb-meta"><span class="sb-iname">Nav Bar Slide</span><span class="sb-tag t-pos">Position</span></div>
+          <div class="sb-meta"><span class="sb-iname">Nav Bar Slide</span><span class="sb-tag t-pos">Position</span>
+          </div>
         </button>
         <button class="sb-item" data-name="Menu Reveal" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#ffecd2,#fcb69f)">☰</div>
@@ -102,7 +121,8 @@
         </button>
         <button class="sb-item" data-name="Liquid Float" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#abecd6,#fbed96)">🫧</div>
-          <div class="sb-meta"><span class="sb-iname">Liquid Float</span><span class="sb-tag t-pos">Position</span></div>
+          <div class="sb-meta"><span class="sb-iname">Liquid Float</span><span class="sb-tag t-pos">Position</span>
+          </div>
         </button>
         <button class="sb-item" data-name="3D Tilt" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#f857a6,#ff5858)">📐</div>
@@ -110,7 +130,8 @@
         </button>
         <button class="sb-item" data-name="Staggered Wave" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#30cfd0,#330867)">🌊</div>
-          <div class="sb-meta"><span class="sb-iname">Staggered Wave</span><span class="sb-tag t-tfm">Transform</span></div>
+          <div class="sb-meta"><span class="sb-iname">Staggered Wave</span><span class="sb-tag t-tfm">Transform</span>
+          </div>
         </button>
         <button class="sb-item" data-name="Neon Glow" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#ff007f,#ff00ff)">🚨</div>
@@ -118,7 +139,8 @@
         </button>
         <button class="sb-item" data-name="Elastic Slide" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#f59e0b,#ee0979)">🏹</div>
-          <div class="sb-meta"><span class="sb-iname">Elastic Slide</span><span class="sb-tag t-pos">Position</span></div>
+          <div class="sb-meta"><span class="sb-iname">Elastic Slide</span><span class="sb-tag t-pos">Position</span>
+          </div>
         </button>
         <button class="sb-item" data-name="Reveal Zoom" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#10b981,#059669)">🔍</div>
@@ -130,7 +152,8 @@
         </button>
         <button class="sb-item" data-name="Fly to Wishlist" aria-pressed="false">
           <div class="sb-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">🎈</div>
-          <div class="sb-meta"><span class="sb-iname">Fly to Wishlist</span><span class="sb-tag t-pos">Position</span></div>
+          <div class="sb-meta"><span class="sb-iname">Fly to Wishlist</span><span class="sb-tag t-pos">Position</span>
+          </div>
         </button>
       </nav>
     </aside>
@@ -146,11 +169,19 @@
           <span class="stage-anim-name" id="stageAnimName">—</span>
           <div class="stage-actions">
             <button class="stage-device-toggle" id="deviceToggleBtn" aria-label="Toggle Mobile Layout">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                <line x1="12" y1="18" x2="12.01" y2="18" />
+              </svg>
               <span>Test Mobile</span>
             </button>
             <button class="stage-replay" id="replayBtn" aria-label="Replay animation">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+              </svg>
               Replay
             </button>
           </div>
@@ -172,7 +203,12 @@
         <!-- Controls -->
         <div class="bp-col controls-col">
           <div class="bp-title">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"
+              stroke-linecap="round">
+              <path d="M12 20V10" />
+              <path d="M18 20V4" />
+              <path d="M6 20v-4" />
+            </svg>
             Controls
           </div>
           <div class="ctrl-grid">
@@ -236,18 +272,32 @@
         <!-- Export -->
         <div class="bp-col export-col">
           <div class="bp-title">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
             <span style="color:#38bdf8">Export for Flutter</span>
           </div>
           <pre class="json-block" id="jsonPreview">// Select an animation
 // to generate JSON</pre>
           <div class="export-btns">
             <button class="ebtn ebtn-copy" id="copyBtn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
               Copy JSON
             </button>
             <button class="ebtn ebtn-dl" id="downloadBtn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
               Download
             </button>
           </div>
@@ -259,4 +309,5 @@
   </div>
   <script src="script.js"></script>
 </body>
+
 </html>
