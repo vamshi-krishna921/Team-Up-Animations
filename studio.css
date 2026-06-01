@@ -1,0 +1,1028 @@
+/* ===== Animation Studio V2 Stylesheet ===== */
+
+/* Mode Switcher — single compact row header */
+.mode-header-container {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 26, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  min-height: 52px;
+}
+
+/* Mode switcher pill — centered absolutely so it's always in the middle */
+.toolbar-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* The mode toggle stays centered */
+.workspace-modes {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.light-theme .workspace-modes {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 1.1rem;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mode-btn.active {
+  background: #7c3aed;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
+.light-theme .mode-btn.active {
+  background: #7c3aed;
+  color: #fff;
+}
+
+/* Studio action buttons sit inline to the right of the mode switcher */
+.studio-only-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+/* Hide the old divider and bottom toolbar row — everything is one row now */
+.toolbar-divider {
+  display: none !important;
+}
+
+.toolbar-row-bottom {
+  display: none !important;
+}
+
+/* In quick-preview, show the bottom row (Test Mobile + Replay) inline after mode switcher */
+.app.mode-quick-preview .toolbar-row-bottom {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+}
+
+/* App modes visibility */
+.app.mode-quick-preview .studio-only {
+  display: none !important;
+}
+
+/* Quick Preview: grid so the header spans full width on row 1 */
+.app.mode-quick-preview {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+.app.mode-quick-preview .mode-header-container {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.app.mode-quick-preview .sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app.mode-quick-preview .main-content {
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app.mode-studio .preview-only {
+  display: none !important;
+}
+
+/* Hide preview-only toolbar row when in studio mode — handled globally above */
+
+.app.mode-studio {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+.app.mode-studio .sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  overflow: hidden;
+}
+
+.app.mode-studio .main-content {
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Right Studio Panel (Inspector + Layers) */
+.studio-right-panel {
+  grid-column: 3;
+  grid-row: 2;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Left sidebar upgrades */
+.studio-sidebar-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.studio-sidebar-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* Scenes Manager list */
+.scenes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.scene-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.scene-item:hover {
+  background: var(--card-bg);
+}
+
+.scene-item.active {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.scene-meta-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scene-actions {
+  display: flex;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.scene-item:hover .scene-actions,
+.scene-item.active .scene-actions {
+  opacity: 1;
+}
+
+.scene-act-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.scene-act-btn:hover {
+  color: var(--text-primary);
+}
+
+.add-scene-btn {
+  width: calc(100% - 1rem);
+  margin: 0.25rem 0.5rem 0.75rem;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px dashed rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+  padding: 0.45rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.add-scene-btn:hover {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+/* Sidebar Tab switcher */
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 0.5rem;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  border-bottom-color: #7c3aed;
+  color: var(--text-primary);
+}
+
+/* Draggable list styling */
+.draggable-list {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.draggable-comp-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  cursor: grab;
+  transition: all 0.2s;
+}
+
+.draggable-comp-item:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--border-intense);
+  transform: translateY(-1px);
+}
+
+.draggable-comp-item:active {
+  cursor: grabbing;
+}
+
+.comp-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+  color: #a78bfa;
+}
+
+/* Canvas Workspace CSS */
+.canvas-wrapper {
+  flex: 1;
+  position: relative;
+  background: #060610;
+  overflow: hidden;
+  outline: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.light-theme .canvas-wrapper {
+  background: #f1f5f9;
+}
+
+.canvas-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Infinite workspace background with snaps and guides */
+.studio-canvas {
+  position: absolute;
+  transform-origin: 0 0;
+  width: 3000px;
+  height: 3000px;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0),
+    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  pointer-events: auto;
+}
+
+.light-theme .studio-canvas {
+  background-image: 
+    radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 0),
+    radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 0);
+}
+
+/* Guidelines and snaps */
+.canvas-grid-line {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Rulers */
+.canvas-ruler {
+  position: absolute;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 8;
+  font-family: monospace;
+  font-size: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.canvas-ruler-x {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.canvas-ruler-y {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 20px;
+  border-right: 1px solid var(--border);
+}
+
+/* Ruler tick marks */
+.ruler-tick {
+  position: absolute;
+  background: var(--border);
+}
+
+.ruler-tick.major {
+  background: var(--text-muted);
+}
+
+/* Canvas Viewport Frame (Center bounds) */
+.canvas-viewport-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(167, 139, 250, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  border-radius: 4px;
+}
+
+.light-theme .canvas-viewport-frame {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+/* Canvas Floating Controls */
+.canvas-controls {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(10, 10, 26, 0.8);
+  border: 1px solid var(--card-border);
+  padding: 0.35rem 0.6rem;
+  border-radius: 12px;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.canvas-ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-ctrl-btn:hover {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.canvas-zoom-val {
+  font-size: 0.72rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: #a78bfa;
+  min-width: 42px;
+  text-align: center;
+}
+
+/* Canvas Dropped Elements */
+.canvas-element {
+  position: absolute;
+  cursor: move;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.canvas-element:hover {
+  outline: 1px dashed #7c3aed;
+}
+
+.canvas-element.selected {
+  outline: 2px solid #7c3aed;
+}
+
+/* Resize selection handles */
+.resize-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 2.5px solid #7c3aed;
+  border-radius: 50%;
+  display: none;
+  z-index: 12;
+}
+
+.canvas-element.selected .resize-handle {
+  display: block;
+}
+
+.resize-handle.tl { top: -4px; left: -4px; cursor: nwse-resize; }
+.resize-handle.tr { top: -4px; right: -4px; cursor: nesw-resize; }
+.resize-handle.bl { bottom: -4px; left: -4px; cursor: nesw-resize; }
+.resize-handle.br { bottom: -4px; right: -4px; cursor: nwse-resize; }
+
+.rotate-handle {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: #7c3aed;
+  border-radius: 50%;
+  cursor: grab;
+  display: none;
+  z-index: 12;
+}
+
+.rotate-handle::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 4.5px;
+  width: 1px;
+  height: 14px;
+  background: #7c3aed;
+}
+
+.canvas-element.selected .rotate-handle {
+  display: block;
+}
+
+/* Canvas Inner content types styling */
+.element-text {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+  user-select: none;
+}
+
+.element-text.editing {
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  caret-color: currentColor;
+}
+
+.element-shape {
+  width: 100%;
+  height: 100%;
+}
+
+.element-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.element-ui {
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Inner UI html is decorative; clicks handled by parent .canvas-element */
+}
+
+/* Property Inspector Panel */
+.inspector-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.inspector-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.inspector-sec-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.property-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.property-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.property-lbl {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.property-input {
+  width: 100%;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.72rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.property-input:focus {
+  border-color: #7c3aed;
+}
+
+.property-color-picker {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.property-color-picker input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+}
+
+/* Layers list inside studio right panel */
+.layers-manager-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.layers-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  font-size: 0.72rem;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.layer-item:hover {
+  background: var(--card-hover-bg);
+}
+
+.layer-item.active {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: var(--text-primary);
+}
+
+.layer-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.layer-name-lbl {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.layer-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.layer-btn:hover {
+  color: var(--text-primary);
+}
+
+.layer-btn.active-state {
+  color: #7c3aed;
+}
+
+/* Timeline Editor CSS rules */
+.studio-timeline-container {
+  height: 240px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9;
+}
+
+.timeline-header {
+  height: 36px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  justify-content: space-between;
+}
+
+.timeline-title-sec {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.timeline-ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.timeline-ctrl-btn:hover {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.timeline-speed-sel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-light);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Timeline Tracks & Scrubber Grid */
+.timeline-content {
+  flex: 1;
+  display: flex;
+  overflow: auto;
+  position: relative;
+}
+
+.timeline-track-names {
+  width: 180px;
+  border-right: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 24px;
+}
+
+.timeline-track-name-row {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-tracks-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-ruler-seconds {
+  height: 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+}
+
+.timeline-second-mark {
+  position: absolute;
+  height: 100%;
+  border-left: 1px solid var(--border);
+  font-size: 8px;
+  color: var(--text-muted);
+  padding-left: 4px;
+  padding-top: 4px;
+}
+
+.timeline-track-row {
+  height: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  position: relative;
+  width: 2000px; /* aligns to the width of rulers */
+  background: repeating-linear-gradient(90deg, transparent, transparent 99px, rgba(255, 255, 255, 0.02) 100px);
+}
+
+/* Timeline animations blocks */
+.timeline-anim-block {
+  position: absolute;
+  top: 4px;
+  height: 24px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+  box-sizing: border-box;
+}
+
+.timeline-anim-block:hover {
+  filter: brightness(1.1);
+}
+
+.timeline-anim-block-resize-handle {
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+.timeline-anim-block-resize-handle.left { left: 0; }
+.timeline-anim-block-resize-handle.right { right: 0; }
+
+/* Timeline playhead line */
+.timeline-playhead-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #f43f5e;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.timeline-playhead-handle {
+  position: absolute;
+  top: 14px;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: #f43f5e;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: col-resize;
+  z-index: 7;
+}
+
+/* Undo / Redo Toast notification */
+.studio-action-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(10, 10, 26, 0.9);
+  border: 1px solid #7c3aed;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.72rem;
+  color: #fff;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.studio-action-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Asset Manager lists */
+.assets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+.asset-card {
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 0.4rem;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.asset-card:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--border-intense);
+}
+
+.asset-preview-img {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #000;
+}
+
+.asset-name {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Scene transitions control input */
+.scene-transition-select {
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+/* Drag feed-back highlights */
+.canvas-viewport-frame.drag-over {
+  border-color: #7c3aed !important;
+  background: rgba(124, 58, 237, 0.05) !important;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+}
+
+.canvas-element.drag-hover {
+  outline: 2px solid #a78bfa !important;
+  background: rgba(167, 139, 250, 0.1) !important;
+}
+

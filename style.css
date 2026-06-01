@@ -1,5 +1,6 @@
 /* ===== Google Font ===== */
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("studio.css");
 
 /* ===== Theme Variables ===== */
 :root {
@@ -62,7 +63,6 @@ html, body {
 
 /* ===== Layout ===== */
 .app {
-  display: flex;
   height: 100vh;
   width: 100vw;
   background: var(--bg-app);
@@ -74,7 +74,7 @@ html, body {
    LEFT SIDEBAR: Animation List (Tool style, compact)
    ================================================================ */
 .sidebar {
-  width: 280px;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -298,7 +298,6 @@ html, body {
    RIGHT MAIN CONTENT: Immersive Preview Stage & Bottom Panel
    ================================================================ */
 .main-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;

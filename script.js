@@ -627,4 +627,14 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
+  // Expose V1 data objects for V2 Studio usage
+  window.v1Data = {
+    animationKeyframes: typeof animationKeyframes !== 'undefined' ? animationKeyframes : {},
+    sceneTemplates: typeof sceneTemplates !== 'undefined' ? sceneTemplates : {},
+    easingToFlutter: typeof easingToFlutter !== 'undefined' ? easingToFlutter : {},
+    toClass: typeof toClass !== 'undefined' ? toClass : (name) => 'anim-' + name.toLowerCase().replace(/\s+/g, '-'),
+    applyAnimation: typeof applyAnimation !== 'undefined' ? applyAnimation : null,
+    selectAnimation: typeof selectAnimation !== 'undefined' ? selectAnimation : null
+  };
+
 });
