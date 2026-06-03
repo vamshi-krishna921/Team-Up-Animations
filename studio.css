@@ -380,6 +380,7 @@
   background-size: 20px 20px;
   background-position: 0 0, 10px 10px;
   pointer-events: auto;
+  will-change: transform;
 }
 
 .light-theme .studio-canvas {
@@ -510,11 +511,28 @@
 }
 
 .canvas-element:hover {
-  outline: 1px dashed #7c3aed;
+  outline: 1px dashed rgba(124,58,237,0.6);
 }
 
 .canvas-element.selected {
   outline: 2px solid #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+}
+
+/* Multi-selected (in selection set but not primary) */
+.canvas-element.multi-selected {
+  outline: 2px solid #818cf8;
+  box-shadow: 0 0 0 3px rgba(129,140,248,0.12);
+}
+
+/* Marquee selection rectangle */
+#marqueeRect {
+  position: absolute;
+  border: 1.5px dashed #7c3aed;
+  background: rgba(124,58,237,0.07);
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 3px;
 }
 
 /* Resize selection handles */

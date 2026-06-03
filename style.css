@@ -123,6 +123,10 @@ html, body {
   transition: color 0.3s;
 }
 
+.sb-name .sb-brand {
+  color: #f97316;
+}
+
 .sb-tagline {
   font-size: 0.7rem;
   font-weight: 600;

@@ -29,149 +29,161 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'shape',
             shapeType: 'rectangle',
             name: '#Background',
-            x: 60,
-            y: 120,
-            width: 440,
-            height: 320,
-            fill: '#ffffff',
-            radius: 24,
-            opacity: 1,
-            visible: true,
-            locked: true,
+            x: 0, y: 0,
+            width: 800, height: 600,
+            fill: '#0f0f1a',
+            radius: 0,
+            opacity: 1, visible: true, locked: true,
             animations: []
           },
           {
-            id: 'layer_hero',
-            type: 'image',
-            name: 'Hero Illustration',
-            url: 'hero_illustration.png',
-            x: 440,
-            y: 140,
-            width: 320,
-            height: 320,
-            opacity: 1,
-            visible: true,
-            locked: false,
+            id: 'layer_glow',
+            type: 'shape',
+            shapeType: 'circle',
+            name: 'Glow Orb',
+            x: 440, y: 100,
+            width: 380, height: 380,
+            fill: 'radial-gradient(circle, rgba(124,58,237,0.35) 0%, transparent 70%)',
+            radius: 190,
+            opacity: 1, visible: true, locked: false,
             animations: [
-              {
-                name: 'Slide Up',
-                start: 1500,
-                duration: 2000,
-                easing: 'cubic-bezier(0.22,1,0.36,1)',
-                infinite: false,
-                direction: 'normal',
-                fill: 'forwards'
-              }
+              { id: 'anim_glow1', name: 'Liquid Float', start: 0, duration: 4000,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+            ]
+          },
+          {
+            id: 'layer_hero',
+            type: 'ui',
+            name: 'Hero Card',
+            x: 440, y: 110,
+            width: 340, height: 380,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(124,58,237,0.18) 0%,rgba(99,102,241,0.08) 100%);border:1px solid rgba(124,58,237,0.25);border-radius:24px;backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;box-sizing:border-box;">
+              <div style="width:80px;height:80px;background:linear-gradient(135deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(124,58,237,0.4);">✦</div>
+              <div style="color:#fff;font-size:20px;font-weight:800;text-align:center;line-height:1.3;">Animation<br/>Studio</div>
+              <div style="color:rgba(255,255,255,0.5);font-size:13px;text-align:center;line-height:1.5;">Create stunning motion<br/>for any platform</div>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <div style="padding:6px 14px;background:rgba(124,58,237,0.3);border:1px solid rgba(124,58,237,0.4);border-radius:20px;color:#a78bfa;font-size:11px;font-weight:600;">Flutter</div>
+                <div style="padding:6px 14px;background:rgba(99,102,241,0.3);border:1px solid rgba(99,102,241,0.4);border-radius:20px;color:#818cf8;font-size:11px;font-weight:600;">React</div>
+                <div style="padding:6px 14px;background:rgba(236,72,153,0.2);border:1px solid rgba(236,72,153,0.3);border-radius:20px;color:#f472b6;font-size:11px;font-weight:600;">CSS</div>
+              </div>
+            </div>`,
+            opacity: 1, visible: true, locked: false,
+            animations: [
+              { id: 'anim_hero1', name: 'Slide Up', start: 300, duration: 1200,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+            ]
+          },
+          {
+            id: 'layer_badge',
+            type: 'ui',
+            name: 'Live Badge',
+            x: 450, y: 86,
+            width: 110, height: 32,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(124,58,237,0.5);">
+              <div style="width:7px;height:7px;background:#4ade80;border-radius:50%;box-shadow:0 0 8px #4ade80;"></div>LIVE STUDIO</div>`,
+            opacity: 1, visible: true, locked: false,
+            animations: [
+              { id: 'anim_badge1', name: 'Fade In', start: 1600, duration: 800,
+                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_title',
             type: 'text',
             name: 'Title Text',
-            x: 100,
-            y: 180,
-            width: 360,
-            height: 80,
-            content: 'Animate Beautifully',
-            fontSize: 36,
-            fontWeight: '700',
+            x: 40, y: 140,
+            width: 380, height: 100,
+            content: 'Animate\nBeautifully',
+            fontSize: 52,
+            fontWeight: '800',
             fontFamily: 'Inter',
-            color: '#6366f1',
-            letterSpacing: '0px',
-            lineHeight: '1.2',
+            color: '#ffffff',
+            letterSpacing: '-1px',
+            lineHeight: '1.1',
             alignment: 'left',
-            opacity: 1,
-            visible: true,
-            locked: false,
+            opacity: 1, visible: true, locked: false,
             animations: [
-              {
-                name: 'Slide Up',
-                start: 0,
-                duration: 3200,
-                easing: 'cubic-bezier(0.22,1,0.36,1)',
-                infinite: false,
-                direction: 'normal',
-                fill: 'forwards'
-              }
+              { id: 'anim_title1', name: 'Slide Up', start: 0, duration: 1000,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_subtitle',
             type: 'text',
             name: 'Subtitle Text',
-            x: 100,
-            y: 270,
-            width: 360,
-            height: 60,
-            content: 'Design, animate and export stunning animations',
-            fontSize: 16,
-            fontWeight: '500',
+            x: 40, y: 265,
+            width: 360, height: 70,
+            content: 'Design, animate and export\nstunning animations to any platform',
+            fontSize: 15,
+            fontWeight: '400',
             fontFamily: 'Inter',
-            color: '#4b5563',
+            color: 'rgba(255,255,255,0.55)',
             letterSpacing: '0px',
-            lineHeight: '1.4',
+            lineHeight: '1.6',
             alignment: 'left',
-            opacity: 1,
-            visible: true,
-            locked: false,
+            opacity: 1, visible: true, locked: false,
             animations: [
-              {
-                name: 'Fade In',
-                start: 500,
-                duration: 1700,
-                easing: 'ease-out',
-                infinite: false,
-                direction: 'normal',
-                fill: 'forwards'
-              }
+              { id: 'anim_sub1', name: 'Fade In', start: 600, duration: 900,
+                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_button',
             type: 'ui',
             name: 'Button',
-            x: 100,
-            y: 350,
-            width: 160,
-            height: 44,
-            html: '<button class="bounce-btn" style="width:100%;height:100%;cursor:default;background:#6366f1;color:#ffffff;border:none;border-radius:12px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(99,102,241,0.4);">Get Started</button>',
-            opacity: 1,
-            visible: true,
-            locked: false,
+            x: 40, y: 370,
+            width: 180, height: 52,
+            html: `<button style="width:100%;height:100%;cursor:default;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:16px;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(124,58,237,0.45);letter-spacing:0.3px;">Get Started →</button>`,
+            opacity: 1, visible: true, locked: false,
             animations: [
-              {
-                name: 'Pulse',
-                start: 1200,
-                duration: 2000,
-                easing: 'cubic-bezier(0.22,1,0.36,1)',
-                infinite: false,
-                direction: 'normal',
-                fill: 'forwards'
-              }
+              { id: 'anim_btn1', name: 'Pulse', start: 1100, duration: 1400,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+            ]
+          },
+          {
+            id: 'layer_stats',
+            type: 'ui',
+            name: 'Stats Row',
+            x: 40, y: 450,
+            width: 360, height: 60,
+            html: `<div style="width:100%;height:100%;display:flex;gap:20px;align-items:center;">
+              <div style="text-align:left;">
+                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">25+</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Animations</div>
+              </div>
+              <div style="width:1px;height:36px;background:rgba(255,255,255,0.1);"></div>
+              <div style="text-align:left;">
+                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">3</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Platforms</div>
+              </div>
+              <div style="width:1px;height:36px;background:rgba(255,255,255,0.1);"></div>
+              <div style="text-align:left;">
+                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">∞</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Possibilities</div>
+              </div>
+            </div>`,
+            opacity: 1, visible: true, locked: false,
+            animations: [
+              { id: 'anim_stats1', name: 'Fade In', start: 1400, duration: 900,
+                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_icons',
             type: 'ui',
             name: 'Floating Icons',
-            x: 410,
-            y: 150,
-            width: 360,
-            height: 280,
-            html: '<div style="position:relative; width:100%; height:100%;"><div style="position:absolute; top:20px; left:10px; background:#6366f1; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; box-shadow:0 4px 10px rgba(0,0,0,0.15);">T</div><div style="position:absolute; top:120px; left:30px; background:#ec4899; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 4px 10px rgba(0,0,0,0.15);">🖼️</div><div style="position:absolute; top:110px; right:10px; background:#3b82f6; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 4px 10px rgba(0,0,0,0.15);">▶️</div></div>',
-            opacity: 1,
-            visible: true,
-            locked: false,
+            x: 36, y: 540,
+            width: 200, height: 36,
+            html: `<div style="display:flex;gap:8px;align-items:center;">
+              <div style="width:32px;height:32px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.35);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎨</div>
+              <div style="width:32px;height:32px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.35);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">⚡</div>
+              <div style="width:32px;height:32px;background:rgba(236,72,153,0.2);border:1px solid rgba(236,72,153,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚀</div>
+              <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-left:4px;">v2.0 Studio</div>
+            </div>`,
+            opacity: 1, visible: true, locked: false,
             animations: [
-              {
-                name: 'Liquid Float',
-                start: 2200,
-                duration: 2800,
-                easing: 'cubic-bezier(0.22,1,0.36,1)',
-                infinite: false,
-                direction: 'normal',
-                fill: 'forwards'
-              }
+              { id: 'anim_icons1', name: 'Slide Up', start: 1800, duration: 800,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           }
         ]
@@ -204,8 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     panX: 0,
     panY: 0,
     isPlaying: false,
-    currentTime: 0, // In milliseconds (0 to 5000ms)
-    duration: 5000, // Total timeline length (5s)
+    currentTime: 0,
+    duration: 5000,
     playbackSpeed: 1.0,
     isPanning: false,
     dragStart: { x: 0, y: 0 },
@@ -438,6 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Keyboard Shortcuts ---
   window.addEventListener('keydown', (e) => {
     if (state.activeMode !== 'studio') return;
+    const tag = document.activeElement.tagName;
+    const editable = document.activeElement.contentEditable === 'true';
     
     // Undo / Redo
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -448,11 +462,32 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       redo();
     }
+
+    // Group / Ungroup
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'G') {
+      e.preventDefault();
+      const scene = getActiveScene();
+      const layer = state.selectedLayerId && scene.layers.find(l => l.id === state.selectedLayerId);
+      if (layer && layer.type === 'group') ungroupLayer(state.selectedLayerId);
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+      e.preventDefault();
+      groupSelectedLayers();
+      return;
+    }
+
+    // Duplicate
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || editable) return;
+      e.preventDefault();
+      if (state.selectedLayerId) duplicateLayer(state.selectedLayerId);
+      return;
+    }
     
     // Delete selected layer
     if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedLayerId) {
-      // Don't trigger if typing in property inputs or textarea
-      if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.contentEditable === 'true') return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || editable) return;
       e.preventDefault();
       deleteLayer(state.selectedLayerId);
     }
@@ -635,9 +670,61 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAll();
   }
 
-  // Draggable left panel components
-  let currentDragType = null;
-  let currentDragData = null;
+  // --- Marquee Selection & Grouping ---
+  const marqueeState = { active: false, startX: 0, startY: 0, el: null };
+
+  function groupSelectedLayers() {
+    const scene = getActiveScene();
+    const ids = state.selectedLayerIds;
+    if (ids.length < 2) { showToast('Select 2+ layers to group'); return; }
+
+    const layers = ids.map(id => scene.layers.find(l => l.id === id)).filter(Boolean);
+    const minX = Math.min(...layers.map(l => l.x));
+    const minY = Math.min(...layers.map(l => l.y));
+    const maxX = Math.max(...layers.map(l => l.x + l.width));
+    const maxY = Math.max(...layers.map(l => l.y + l.height));
+
+    const groupId = 'group_' + Date.now();
+    const group = {
+      id: groupId,
+      type: 'group',
+      name: `Group (${layers.length})`,
+      x: minX, y: minY,
+      width: maxX - minX, height: maxY - minY,
+      opacity: 1, visible: true, locked: false, rotation: 0,
+      animations: [],
+      children: layers.map(l => ({ ...l, x: l.x - minX, y: l.y - minY }))
+    };
+
+    // Replace all selected layers with the group, preserving z-order of first member
+    const firstIdx = Math.min(...layers.map(l => scene.layers.indexOf(l)));
+    scene.layers = scene.layers.filter(l => !ids.includes(l.id));
+    scene.layers.splice(firstIdx, 0, group);
+
+    selectLayer(groupId, false);
+    saveState();
+    renderAll();
+    showToast('Layers grouped');
+  }
+
+  function ungroupLayer(groupId) {
+    const scene = getActiveScene();
+    const idx = scene.layers.findIndex(l => l.id === groupId);
+    const group = scene.layers[idx];
+    if (!group || group.type !== 'group') return;
+
+    const ungrouped = group.children.map(c => ({
+      ...c,
+      x: group.x + c.x,
+      y: group.y + c.y,
+      id: c.id || 'layer_' + Date.now() + Math.random()
+    }));
+    scene.layers.splice(idx, 1, ...ungrouped);
+    selectLayer(null);
+    saveState();
+    renderAll();
+    showToast('Group ungrouped');
+  }
 
   function renderSidebarTab(tabName) {
     const container = document.getElementById('studioTabContent');
@@ -955,6 +1042,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Marquee selection — drag on viewport background to rubber-band select
+    viewportNode.addEventListener('mousedown', (e) => {
+      if (e.target !== viewportNode) return; // only on background
+      e.preventDefault();
+      const rect = viewportNode.getBoundingClientRect();
+      marqueeState.active = true;
+      marqueeState.startX = (e.clientX - rect.left) / state.zoom;
+      marqueeState.startY = (e.clientY - rect.top)  / state.zoom;
+
+      if (!marqueeState.el) {
+        const m = document.createElement('div');
+        m.id = 'marqueeRect';
+        m.style.cssText = `position:absolute;border:1.5px dashed #7c3aed;background:rgba(124,58,237,0.08);
+          pointer-events:none;z-index:9999;border-radius:3px;`;
+        viewportNode.appendChild(m);
+        marqueeState.el = m;
+      }
+      marqueeState.el.style.display = 'block';
+      marqueeState.el.style.left   = marqueeState.startX + 'px';
+      marqueeState.el.style.top    = marqueeState.startY + 'px';
+      marqueeState.el.style.width  = '0px';
+      marqueeState.el.style.height = '0px';
+    });
+
     window.addEventListener('mousemove', (e) => {
       if (state.isPanning) {
         const dx = e.clientX - state.dragStart.x;
@@ -964,10 +1075,77 @@ document.addEventListener('DOMContentLoaded', () => {
         state.dragStart = { x: e.clientX, y: e.clientY };
         applyCanvasTransform();
       }
+
+      // Marquee drag
+      if (marqueeState.active && marqueeState.el) {
+        const rect = viewportNode.getBoundingClientRect();
+        const curX = (e.clientX - rect.left) / state.zoom;
+        const curY = (e.clientY - rect.top)  / state.zoom;
+        const x = Math.min(curX, marqueeState.startX);
+        const y = Math.min(curY, marqueeState.startY);
+        const w = Math.abs(curX - marqueeState.startX);
+        const h = Math.abs(curY - marqueeState.startY);
+        marqueeState.el.style.left   = x + 'px';
+        marqueeState.el.style.top    = y + 'px';
+        marqueeState.el.style.width  = w + 'px';
+        marqueeState.el.style.height = h + 'px';
+      }
+
+      // Element dragging
+      if (state.isDraggingElements && state.dragStartPositions) {
+        const dx = (e.clientX - state.dragStartMouse.x) / state.zoom;
+        const dy = (e.clientY - state.dragStartMouse.y) / state.zoom;
+        const snap = (v, size) => state.snapGrid ? Math.round(v / size) * size : v;
+        const scene = getActiveScene();
+        Object.entries(state.dragStartPositions).forEach(([id, startPos]) => {
+          const l = scene.layers.find(ly => ly.id === id);
+          if (l) {
+            l.x = snap(startPos.x + dx, state.gridSize);
+            l.y = snap(startPos.y + dy, state.gridSize);
+          }
+        });
+        renderCanvas();
+        renderPropertyPanel();
+      }
     });
 
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', (e) => {
       state.isPanning = false;
+
+      // Finish marquee — hit-test layers
+      if (marqueeState.active) {
+        marqueeState.active = false;
+        if (marqueeState.el) marqueeState.el.style.display = 'none';
+
+        const rect = viewportNode.getBoundingClientRect();
+        const curX = (e.clientX - rect.left) / state.zoom;
+        const curY = (e.clientY - rect.top)  / state.zoom;
+        const rx = Math.min(curX, marqueeState.startX);
+        const ry = Math.min(curY, marqueeState.startY);
+        const rw = Math.abs(curX - marqueeState.startX);
+        const rh = Math.abs(curY - marqueeState.startY);
+
+        if (rw > 4 && rh > 4) {
+          const scene = getActiveScene();
+          const hit = scene.layers.filter(l => l.visible && !l.locked &&
+            l.x < rx + rw && l.x + l.width  > rx &&
+            l.y < ry + rh && l.y + l.height > ry
+          ).map(l => l.id);
+
+          if (hit.length > 0) {
+            state.selectedLayerIds = hit;
+            state.selectedLayerId  = hit[hit.length - 1];
+            renderAll();
+          }
+        }
+      }
+
+      // Finish element drag
+      if (state.isDraggingElements) {
+        state.isDraggingElements = false;
+        state.dragStartPositions = null;
+        saveState();
+      }
     });
 
     // Drag Over to add components
@@ -1063,10 +1241,76 @@ document.addEventListener('DOMContentLoaded', () => {
     applyCanvasTransform();
   }
 
+  // Fit the 800x600 viewport frame perfectly centered in the canvas wrapper
+  function fitViewportToWrapper(animate) {
+    const wrapper = document.getElementById('canvasWrapper');
+    if (!wrapper) return;
+    const ww = wrapper.clientWidth;
+    const wh = wrapper.clientHeight;
+
+    // The viewport frame is 800x600, centered at (1500,1500) inside the 3000x3000 canvas
+    const frameW = 800, frameH = 600;
+    const frameCX = 1500, frameCY = 1500; // center of frame in canvas coords
+
+    // Fit with 10% padding on each side
+    const padding = 0.82;
+    const zoomX = (ww / frameW) * padding;
+    const zoomY = (wh / frameH) * padding;
+    const zoom = Math.min(zoomX, zoomY, 1.2); // cap at 120% to avoid huge on large screens
+
+    // Pan so the frame center maps to the wrapper center
+    // canvas transforms: screenX = panX + canvasX * zoom
+    // We want frameCX * zoom + panX = ww/2  =>  panX = ww/2 - frameCX * zoom
+    const panX = ww / 2 - frameCX * zoom;
+    const panY = wh / 2 - frameCY * zoom;
+
+    if (animate) {
+      canvasNode.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1)';
+      setTimeout(() => { canvasNode.style.transition = ''; }, 550);
+    }
+
+    state.zoom = zoom;
+    state.panX = panX;
+    state.panY = panY;
+    applyCanvasTransform();
+  }
+
   function applyCanvasTransform() {
     canvasNode.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
     document.getElementById('zoomVal').textContent = `${Math.round(state.zoom * 100)}%`;
     renderRulers();
+  }
+
+  // Fit the 800x600 canvas into the wrapper with padding, perfectly centered
+  function centerCanvas() {
+    const wrapper = document.getElementById('canvasWrapper');
+    if (!wrapper) return;
+
+    const wW = wrapper.clientWidth;
+    const wH = wrapper.clientHeight;
+
+    // Need real dimensions — bail if layout hasn't happened yet
+    if (wW < 100 || wH < 100) return false;
+
+    const CANVAS_W = 800;
+    const CANVAS_H = 600;
+    const PADDING  = 64; // breathing room around canvas
+
+    // Fit zoom so canvas fills wrapper with padding on all sides
+    const fitZoom = Math.min(
+      (wW - PADDING * 2) / CANVAS_W,
+      (wH - PADDING * 2) / CANVAS_H
+    );
+    state.zoom = Math.max(0.25, Math.min(1.5, parseFloat(fitZoom.toFixed(3))));
+
+    // Center at the computed zoom
+    const scaledW = CANVAS_W * state.zoom;
+    const scaledH = CANVAS_H * state.zoom;
+    state.panX = Math.round((wW - scaledW) / 2);
+    state.panY = Math.round((wH - scaledH) / 2);
+
+    applyCanvasTransform();
+    return true;
   }
 
   function renderRulers() {
@@ -1101,6 +1345,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldElems = viewportNode.querySelectorAll('.canvas-element');
     oldElems.forEach(el => {
       if (el._snapAnim) { try { el._snapAnim.cancel(); } catch(e) {} }
+      // Cancel all cached WAAPI animations
+      if (el._animCache) {
+        Object.values(el._animCache).forEach(wa => { try { wa.cancel(); } catch(e) {} });
+      }
       el.remove();
     });
 
@@ -1108,7 +1356,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!layer.visible) return;
 
       const div = document.createElement('div');
-      div.className = `canvas-element ${state.selectedLayerIds.includes(layer.id) ? 'selected' : ''}`;
+      const isSelected = state.selectedLayerIds.includes(layer.id);
+      const isPrimary  = layer.id === state.selectedLayerId;
+      div.className = `canvas-element${isPrimary ? ' selected' : isSelected ? ' multi-selected' : ''}`;
       div.dataset.id = layer.id;
       div.style.left = `${layer.x}px`;
       div.style.top = `${layer.y}px`;
@@ -1169,6 +1419,36 @@ document.addEventListener('DOMContentLoaded', () => {
         uiDiv.className = 'element-ui';
         uiDiv.innerHTML = layer.html;
         div.appendChild(uiDiv);
+      } else if (layer.type === 'group') {
+        // Render a transparent group container with dashed outline + child previews
+        div.style.border = '1.5px dashed rgba(124,58,237,0.5)';
+        div.style.borderRadius = '4px';
+        div.style.background = 'rgba(124,58,237,0.04)';
+        const label = document.createElement('div');
+        label.style.cssText = `position:absolute;top:-18px;left:0;font-size:9px;font-weight:700;
+          color:#a78bfa;background:rgba(124,58,237,0.15);padding:1px 6px;border-radius:3px;white-space:nowrap;`;
+        label.textContent = layer.name;
+        div.appendChild(label);
+        // Render children inside group (read-only preview)
+        (layer.children || []).forEach(child => {
+          const cd = document.createElement('div');
+          cd.style.cssText = `position:absolute;left:${child.x}px;top:${child.y}px;
+            width:${child.width}px;height:${child.height}px;overflow:hidden;pointer-events:none;`;
+          if (child.type === 'text') {
+            cd.style.fontSize = child.fontSize + 'px';
+            cd.style.fontWeight = child.fontWeight;
+            cd.style.color = child.color;
+            cd.style.lineHeight = child.lineHeight;
+            cd.style.textAlign = child.alignment;
+            cd.textContent = child.content;
+          } else if (child.type === 'shape') {
+            cd.style.background = child.fill;
+            cd.style.borderRadius = child.shapeType === 'circle' ? '50%' : (child.radius || 0) + 'px';
+          } else if (child.type === 'ui') {
+            cd.innerHTML = child.html || '';
+          }
+          div.appendChild(cd);
+        });
       }
 
       // Add selection and resize corners using insertAdjacentHTML to preserve text listeners
@@ -1355,18 +1635,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  window.addEventListener('mouseup', () => {
-    if (state.isDraggingElements) {
-      state.isDraggingElements = false;
-      saveState();
-      renderAll();
-    }
-  });
-
   // --- Property Inspector Renderer ---
   function renderPropertyPanel() {
     const container = document.getElementById('inspectorContent');
     const scene = getActiveScene();
+
+    // Multi-selection panel
+    if (state.selectedLayerIds.length > 1) {
+      container.innerHTML = `
+        <div style="padding:0.5rem 0;">
+          <div style="font-size:0.72rem;font-weight:700;color:#a78bfa;margin-bottom:0.75rem;">
+            ${state.selectedLayerIds.length} layers selected
+          </div>
+          <button id="btnGroupLayers" style="width:100%;padding:0.55rem;background:linear-gradient(135deg,#7c3aed,#6366f1);
+            color:#fff;border:none;border-radius:8px;font-weight:700;font-size:0.78rem;cursor:pointer;
+            box-shadow:0 4px 12px rgba(124,58,237,0.35);margin-bottom:0.5rem;">
+            ⬡ Group Layers (Ctrl+G)
+          </button>
+          <div style="font-size:0.68rem;color:var(--text-muted);line-height:1.5;">
+            ${state.selectedLayerIds.map(id => {
+              const l = scene.layers.find(x => x.id === id);
+              return l ? `<div style="padding:2px 0;">· ${l.name}</div>` : '';
+            }).join('')}
+          </div>
+        </div>`;
+      document.getElementById('btnGroupLayers')?.addEventListener('click', groupSelectedLayers);
+      return;
+    }
+
     const layer = scene.layers.find(l => l.id === state.selectedLayerId);
     
     if (!layer) {
@@ -1489,22 +1785,58 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
-    // Animation assignments
+    // Group-specific controls
+    if (layer.type === 'group') {
+      fields += `
+        <button id="btnUngroupLayer" style="width:100%;padding:0.45rem;margin-bottom:0.75rem;
+          background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);
+          border-radius:6px;font-weight:700;font-size:0.72rem;cursor:pointer;">
+          ⬡ Ungroup (Ctrl+Shift+G)
+        </button>`;
+    }
+
+    // Animation assignments + Keyframe editor
     fields += `
       <div class="inspector-sec-title" style="margin-top:1rem;">Layer Animations</div>
       <div id="inspectorAnimsList">
     `;
 
     if (layer.animations.length === 0) {
-      fields += `<div style="font-size:0.68rem; color:var(--text-muted);">No animations attached. Drag from Catalog to add.</div>`;
+      fields += `<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.5rem;">No animations. Drag from Catalog or use Keyframes below.</div>`;
     } else {
       layer.animations.forEach((anim, i) => {
-        const animId = anim.id || i; // legacy anims without id fall back to index
+        const animId = anim.id || i;
+        const kfs = anim.keyframes || [];
+
+        // Build keyframe rows HTML
+        let kfRowsHTML = '';
+        kfs.forEach((kf, ki) => {
+          kfRowsHTML += `
+            <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr 24px;gap:4px;align-items:center;
+              background:rgba(255,255,255,0.03);border-radius:4px;padding:3px 4px;margin-bottom:3px;">
+              <span style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-align:center;">${Math.round(kf.offset*100)}%</span>
+              <input type="number" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="opacity"
+                placeholder="opacity" min="0" max="1" step="0.1" value="${kf.opacity ?? ''}"
+                style="font-size:0.62rem;padding:2px 4px;" title="Opacity (0–1)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateY"
+                placeholder="Y px" value="${kf.translateY ?? ''}"
+                style="font-size:0.62rem;padding:2px 4px;" title="translateY (px)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateX"
+                placeholder="X px" value="${kf.translateX ?? ''}"
+                style="font-size:0.62rem;padding:2px 4px;" title="translateX (px)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="scale"
+                placeholder="scale" value="${kf.scale ?? ''}"
+                style="font-size:0.62rem;padding:2px 4px;" title="scale (e.g. 0.8)"/>
+              <button class="kf-del-btn" data-anim-id="${animId}" data-ki="${ki}"
+                style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0;line-height:1;">✕</button>
+            </div>`;
+        });
+
         fields += `
           <div style="background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:6px; padding:0.5rem; margin-bottom:0.5rem;">
-            <div style="display:flex; justify-content:between; align-items:center; margin-bottom:0.4rem;">
-              <span style="font-size:0.72rem; font-weight:700; color:#a78bfa;">${anim.name}</span>
-              <button class="layer-btn btn-del-anim" data-anim-id="${animId}" data-index="${i}" style="margin-left:auto;">🗑</button>
+            <div style="display:flex; align-items:center; margin-bottom:0.4rem; gap:4px;">
+              <span style="font-size:0.72rem; font-weight:700; color:#a78bfa; flex:1;">${anim.name}</span>
+              <button class="layer-btn btn-del-anim" data-anim-id="${animId}" data-index="${i}">🗑</button>
             </div>
             <div class="property-row-split" style="margin-bottom:0.25rem;">
               <div>
@@ -1520,29 +1852,52 @@ document.addEventListener('DOMContentLoaded', () => {
               <div>
                 <label class="property-lbl" style="font-size:0.62rem;">Easing</label>
                 <select class="property-input anim-change-select" data-anim-id="${animId}" data-index="${i}" data-prop="easing">
-                  <option value="cubic-bezier(0.22,1,0.36,1)" ${anim.easing === 'cubic-bezier(0.22,1,0.36,1)' ? 'selected' : ''}>Ease Out Expo</option>
-                  <option value="linear" ${anim.easing === 'linear' ? 'selected' : ''}>Linear</option>
-                  <option value="ease" ${anim.easing === 'ease' ? 'selected' : ''}>Ease</option>
-                  <option value="ease-in" ${anim.easing === 'ease-in' ? 'selected' : ''}>Ease In</option>
-                  <option value="ease-out" ${anim.easing === 'ease-out' ? 'selected' : ''}>Ease Out</option>
-                  <option value="ease-in-out" ${anim.easing === 'ease-in-out' ? 'selected' : ''}>Ease In Out</option>
-                  <option value="cubic-bezier(0.34,1.56,0.64,1)" ${anim.easing === 'cubic-bezier(0.34,1.56,0.64,1)' ? 'selected' : ''}>Spring Bounce</option>
-                  <option value="cubic-bezier(0.4,0,0.2,1)" ${anim.easing === 'cubic-bezier(0.4,0,0.2,1)' ? 'selected' : ''}>Material</option>
+                  <option value="cubic-bezier(0.22,1,0.36,1)" ${anim.easing==='cubic-bezier(0.22,1,0.36,1)'?'selected':''}>Ease Out Expo</option>
+                  <option value="linear" ${anim.easing==='linear'?'selected':''}>Linear</option>
+                  <option value="ease" ${anim.easing==='ease'?'selected':''}>Ease</option>
+                  <option value="ease-in" ${anim.easing==='ease-in'?'selected':''}>Ease In</option>
+                  <option value="ease-out" ${anim.easing==='ease-out'?'selected':''}>Ease Out</option>
+                  <option value="ease-in-out" ${anim.easing==='ease-in-out'?'selected':''}>Ease In Out</option>
+                  <option value="cubic-bezier(0.34,1.56,0.64,1)" ${anim.easing==='cubic-bezier(0.34,1.56,0.64,1)'?'selected':''}>Spring Bounce</option>
+                  <option value="cubic-bezier(0.4,0,0.2,1)" ${anim.easing==='cubic-bezier(0.4,0,0.2,1)'?'selected':''}>Material</option>
                 </select>
               </div>
               <div>
                 <label class="property-lbl" style="font-size:0.62rem;">Direction</label>
                 <select class="property-input anim-change-select" data-anim-id="${animId}" data-index="${i}" data-prop="direction">
-                  <option value="normal" ${anim.direction === 'normal' ? 'selected' : ''}>Normal</option>
-                  <option value="reverse" ${anim.direction === 'reverse' ? 'selected' : ''}>Reverse</option>
-                  <option value="alternate" ${anim.direction === 'alternate' ? 'selected' : ''}>Alternate</option>
-                  <option value="alternate-reverse" ${anim.direction === 'alternate-reverse' ? 'selected' : ''}>Alt. Reverse</option>
+                  <option value="normal" ${anim.direction==='normal'?'selected':''}>Normal</option>
+                  <option value="reverse" ${anim.direction==='reverse'?'selected':''}>Reverse</option>
+                  <option value="alternate" ${anim.direction==='alternate'?'selected':''}>Alternate</option>
+                  <option value="alternate-reverse" ${anim.direction==='alternate-reverse'?'selected':''}>Alt. Reverse</option>
                 </select>
               </div>
             </div>
-            <div style="margin-top:0.25rem; display:flex; align-items:center; gap:0.5rem;">
-              <input type="checkbox" class="anim-change-checkbox" id="anim-repeat-${animId}" data-anim-id="${animId}" data-index="${i}" data-prop="infinite" ${anim.infinite ? 'checked' : ''}/>
+            <div style="margin-top:0.25rem; display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+              <input type="checkbox" class="anim-change-checkbox" id="anim-repeat-${animId}" data-anim-id="${animId}" data-index="${i}" data-prop="infinite" ${anim.infinite?'checked':''}/>
               <label for="anim-repeat-${animId}" class="property-lbl" style="font-size:0.62rem; cursor:pointer;">Repeat Infinite (∞)</label>
+            </div>
+
+            <!-- Keyframe Editor -->
+            <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:0.4rem;">
+              <div style="display:flex;align-items:center;margin-bottom:0.35rem;gap:6px;">
+                <span style="font-size:0.63rem;font-weight:700;color:var(--text-muted);flex:1;text-transform:uppercase;letter-spacing:0.5px;">Keyframes</span>
+                <button class="btn-add-kf" data-anim-id="${animId}"
+                  style="font-size:0.62rem;padding:2px 8px;background:rgba(124,58,237,0.2);
+                  border:1px solid rgba(124,58,237,0.35);color:#a78bfa;border-radius:4px;cursor:pointer;font-weight:600;">
+                  + Add
+                </button>
+              </div>
+              ${kfs.length > 0 ? `
+                <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr 24px;gap:4px;margin-bottom:3px;padding:0 4px;">
+                  <span style="font-size:0.58rem;color:var(--text-muted);text-align:center;">%</span>
+                  <span style="font-size:0.58rem;color:var(--text-muted);">Opacity</span>
+                  <span style="font-size:0.58rem;color:var(--text-muted);">Y (px)</span>
+                  <span style="font-size:0.58rem;color:var(--text-muted);">X (px)</span>
+                  <span style="font-size:0.58rem;color:var(--text-muted);">Scale</span>
+                  <span></span>
+                </div>
+                ${kfRowsHTML}
+              ` : `<div style="font-size:0.63rem;color:var(--text-muted);font-style:italic;">No custom keyframes. Click + Add to create one.</div>`}
             </div>
           </div>
         `;
@@ -1550,7 +1905,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fields += `</div>`;
-
     container.innerHTML = fields;
 
     // Attach listeners - input for live updates, change for undo history
@@ -1639,7 +1993,6 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => {
         const animId = btn.dataset.animId;
         const fallbackIndex = parseInt(btn.dataset.index);
-        // Find by id first (new animations); fall back to index for legacy pre-loaded animations
         const idx = animId
           ? layer.animations.findIndex(a => a.id === animId)
           : fallbackIndex;
@@ -1651,6 +2004,93 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    // Ungroup button
+    container.querySelector('#btnUngroupLayer')?.addEventListener('click', () => {
+      ungroupLayer(layer.id);
+    });
+
+    // Keyframe: Add keyframe to animation
+    container.querySelectorAll('.btn-add-kf').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const animId = btn.dataset.animId;
+        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
+        if (!anim) return;
+        if (!anim.keyframes) anim.keyframes = [];
+        // Auto-pick a sensible offset: 0 if empty, 1 if one exists, else midpoint
+        const existing = anim.keyframes.map(k => k.offset);
+        let nextOffset = 0;
+        if (existing.includes(0) && !existing.includes(1)) nextOffset = 1;
+        else if (existing.length > 0) {
+          // Find the largest gap
+          const sorted = [...new Set([...existing, 0, 1])].sort((a, b) => a - b);
+          let maxGap = 0;
+          for (let gi = 0; gi < sorted.length - 1; gi++) {
+            const gap = sorted[gi + 1] - sorted[gi];
+            if (gap > maxGap) { maxGap = gap; nextOffset = Math.round((sorted[gi] + sorted[gi+1]) / 2 * 100) / 100; }
+          }
+        }
+        anim.keyframes.push({ offset: nextOffset, opacity: nextOffset === 0 ? 0 : 1 });
+        anim.keyframes.sort((a, b) => a.offset - b.offset);
+        saveState();
+        renderPropertyPanel();
+        previewTimelineAtTime();
+      });
+    });
+
+    // Keyframe: Edit property
+    container.querySelectorAll('.kf-change').forEach(input => {
+      input.addEventListener('change', () => {
+        const animId = input.dataset.animId;
+        const ki = parseInt(input.dataset.ki);
+        const prop = input.dataset.prop;
+        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
+        if (!anim || !anim.keyframes || !anim.keyframes[ki]) return;
+        const val = input.value.trim();
+        if (val === '') {
+          delete anim.keyframes[ki][prop];
+        } else {
+          anim.keyframes[ki][prop] = isNaN(val) ? val : parseFloat(val);
+        }
+        // Rebuild WAAPI keyframes from custom keyframes
+        applyCustomKeyframes(anim);
+        saveState();
+        previewTimelineAtTime();
+      });
+    });
+
+    // Keyframe: Delete keyframe
+    container.querySelectorAll('.kf-del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const animId = btn.dataset.animId;
+        const ki = parseInt(btn.dataset.ki);
+        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
+        if (!anim || !anim.keyframes) return;
+        anim.keyframes.splice(ki, 1);
+        applyCustomKeyframes(anim);
+        saveState();
+        renderPropertyPanel();
+        previewTimelineAtTime();
+      });
+    });
+  }
+
+  // Convert custom keyframe data into WAAPI-compatible keyframe array on the animation
+  function applyCustomKeyframes(anim) {
+    if (!anim.keyframes || anim.keyframes.length === 0) return;
+    // Merge into the keyframeMap so previewTimelineAtTime picks them up
+    const wapiKfs = anim.keyframes.map(kf => {
+      const frame = { offset: kf.offset };
+      if (kf.opacity !== undefined) frame.opacity = kf.opacity;
+      const transforms = [];
+      if (kf.translateX !== undefined) transforms.push(`translateX(${kf.translateX}px)`);
+      if (kf.translateY !== undefined) transforms.push(`translateY(${kf.translateY}px)`);
+      if (kf.scale !== undefined) transforms.push(`scale(${kf.scale})`);
+      if (transforms.length) frame.transform = transforms.join(' ');
+      return frame;
+    });
+    // Store compiled keyframes on the animation itself for the preview engine
+    anim._compiledKeyframes = wapiKfs;
   }
 
   // --- Timeline Editor Layout & Track Management ---
@@ -1767,62 +2207,82 @@ document.addEventListener('DOMContentLoaded', () => {
     const keyframeMap = (window.v1Data && window.v1Data.animationKeyframes) || {};
 
     scene.layers.forEach(layer => {
-      const elNode = viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"]`);
+      const elNode = viewportNode ? viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"]`) : null;
       if (!elNode) return;
 
-      // Reset to layer's default transform/opacity before applying any active animation
-      elNode.style.transform = `rotate(${layer.rotation || 0}deg)`;
-      elNode.style.opacity = layer.opacity != null ? layer.opacity : 1;
+      // Initialize per-element animation cache
+      if (!elNode._animCache) elNode._animCache = {};
 
       layer.animations.forEach(anim => {
-        const animStart = anim.start;
-        const animEnd   = anim.start + anim.duration;
-        const keyframes = keyframeMap[anim.name];
+        const keyframes = anim._compiledKeyframes ||  keyframeMap[anim.name];
         if (!keyframes || keyframes.length < 2) return;
 
-        if (state.currentTime >= animStart && state.currentTime <= animEnd) {
-          const progress = (state.currentTime - animStart) / anim.duration;
-          applyInterpolation(elNode, keyframes, progress, layer);
+        const cacheKey = anim.id || anim.name;
+        const animStart = anim.start;
+        const animEnd   = anim.start + anim.duration;
+        const inRange   = state.currentTime >= animStart && state.currentTime <= animEnd;
+        const past      = state.currentTime > animEnd;
+
+        // Convert keyframes to WAAPI format once
+        const waKeyframes = keyframes.map(({ offset, ...rest }) => ({ ...rest, offset }));
+
+        // Create (or reuse) a long-lived WAAPI animation for this anim slot
+        let wa = elNode._animCache[cacheKey];
+        if (!wa || wa.playState === 'idle' || wa.effect === null) {
+          try {
+            wa = elNode.animate(waKeyframes, {
+              duration: anim.duration,
+              fill: 'both',
+              easing: 'linear',
+              iterations: 1,
+            });
+            wa.pause();
+            elNode._animCache[cacheKey] = wa;
+          } catch(e) { return; }
+        }
+
+        if (inRange) {
+          // Seek animation to current position within this anim's window
+          wa.currentTime = state.currentTime - animStart;
+        } else if (past) {
+          // Hold at end frame
+          wa.currentTime = anim.duration;
+        } else {
+          // Before start: hold at first frame (invisible/off-screen)
+          wa.currentTime = 0;
         }
       });
+
+      // Sync base opacity/rotation for layers with no active animation
+      const hasActiveAnim = layer.animations.some(a =>
+        state.currentTime >= a.start && state.currentTime <= a.start + a.duration
+      );
+      if (!hasActiveAnim && layer.animations.length === 0) {
+        elNode.style.transform = `rotate(${layer.rotation || 0}deg)`;
+        elNode.style.opacity = layer.opacity != null ? layer.opacity : 1;
+      }
     });
   }
 
   // Use Web Animations API for a one-shot interpolation snapshot at a given progress (0-1)
   function applyInterpolation(elNode, keyframes, progress, layer) {
-    // Convert v1 keyframe format ({ offset, transform, opacity, ... }) to WAAPI format
-    const waKeyframes = keyframes.map(kf => {
-      const { offset, ...rest } = kf;
-      return { ...rest, offset };
-    });
-
-    // Cancel any previous "snapshot" animation on this element
+    const waKeyframes = keyframes.map(({ offset, ...rest }) => ({ ...rest, offset }));
     if (elNode._snapAnim) {
       try { elNode._snapAnim.cancel(); } catch(e) {}
     }
-
-    // Run a paused WAAPI animation and seek to the exact progress position
     try {
-      const anim = elNode.animate(waKeyframes, {
-        duration: 1000,          // duration doesn't matter since we immediately seek
-        fill: 'forwards',
-        easing: 'linear',        // linear so progress = position directly
-      });
+      const anim = elNode.animate(waKeyframes, { duration: 1000, fill: 'forwards', easing: 'linear' });
       anim.currentTime = progress * 1000;
       anim.pause();
       elNode._snapAnim = anim;
     } catch (e) {
-      // Fallback: manual opacity + simple transform for browsers that can't handle complex keyframes
       const idx = Math.min(Math.floor(progress * (keyframes.length - 1)), keyframes.length - 2);
-      const from = keyframes[idx];
-      const to   = keyframes[idx + 1];
+      const from = keyframes[idx], to = keyframes[idx + 1];
       const seg  = (progress - from.offset) / Math.max(0.001, to.offset - from.offset);
-      if (from.opacity != null && to.opacity != null) {
+      if (from.opacity != null && to.opacity != null)
         elNode.style.opacity = from.opacity + (to.opacity - from.opacity) * seg;
-      }
-      if (from.transform) {
+      if (from.transform)
         elNode.style.transform = `rotate(${layer.rotation || 0}deg) ${from.transform}`;
-      }
     }
   }
 
@@ -2067,7 +2527,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Run initialization
   initStudioDOM();
-  initCanvasRefs(); // Must come after initStudioDOM creates the elements
+  initCanvasRefs();
   setupModeToggles();
   setupTabs();
   initCanvasControls();
@@ -2075,8 +2535,23 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFileMenu();
   setupSceneControls();
   setupCanvasDeselect();
-  applyCanvasTransform();
 
   // Force default Studio mode on load
   document.getElementById('modeBtnStudio').click();
+  renderAll();
+
+  // Retry centering until the wrapper has real dimensions (grid layout may take a few frames)
+  let centerAttempts = 0;
+  function tryCenterAndPlay() {
+    const ok = centerCanvas();
+    centerAttempts++;
+    if (!ok && centerAttempts < 20) {
+      // Layout not ready yet — try again next frame
+      requestAnimationFrame(tryCenterAndPlay);
+    } else {
+      renderAll(); // re-render at correct zoom
+      setTimeout(() => playTimeline(), 80);
+    }
+  }
+  requestAnimationFrame(tryCenterAndPlay);
 });
