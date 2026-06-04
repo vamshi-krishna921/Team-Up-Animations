@@ -215,6 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
     zoom: 1.0,
     panX: 0,
     panY: 0,
+    canvasWidth: 800,
+    canvasHeight: 600,
     isPlaying: false,
     currentTime: 0,
     duration: 5000,
@@ -256,12 +258,69 @@ document.addEventListener('DOMContentLoaded', () => {
     'Triangle': { type: 'shape', shapeType: 'triangle', width: 100, height: 100, fill: '#f59e0b', stroke: 'transparent', strokeWidth: 0, shadow: 10 },
     'Line': { type: 'shape', shapeType: 'line', width: 200, height: 8, fill: '#10b981', stroke: 'transparent', strokeWidth: 0, radius: 4 },
     
-    // UI Elements
-    'Card': { type: 'ui', template: 'Card', width: 280, height: 140, html: `<div class="glass-card" style="width:100%;height:100%;"><div class="card-icon-circle bg-purple">✦</div><div class="card-content"><h4>Modern UI Card</h4><p>Draggable UI Component</p></div></div>` },
-    'Button': { type: 'ui', template: 'Button', width: 180, height: 44, html: `<button class="bounce-btn" style="width:100%;height:100%;cursor:default;">Action Button ⚡</button>` },
-    'Avatar': { type: 'ui', template: 'Avatar', width: 64, height: 64, html: `<div class="shimmer-avatar" style="width:100%;height:100%;margin:0;"></div>` },
-    'Notification': { type: 'ui', template: 'Notification', width: 280, height: 60, html: `<div class="glass-card slide-banner" style="width:100%;height:100%;margin:0;"><div class="banner-status-dot"></div><span>Sync Complete</span></div>` }
+    // UI Elements — fields stored in state, html built dynamically via buildUIHtml()
+    'Card': {
+      type: 'ui', template: 'card', width: 280, height: 160,
+      cardTitle: 'Modern UI Card', cardSubtitle: 'Draggable UI Component',
+      cardIcon: '✦', cardBg: '#1a1a2e', cardAccent: '#7c3aed'
+    },
+    'Button': {
+      type: 'ui', template: 'button', width: 180, height: 48,
+      btnLabel: 'Action Button ⚡', btnBg: '#7c3aed', btnColor: '#ffffff',
+      btnRadius: 14, btnFontSize: 15
+    },
+    'Avatar': {
+      type: 'ui', template: 'avatar', width: 80, height: 80,
+      avatarUrl: '', avatarInitials: 'AB', avatarBg: '#7c3aed', avatarRadius: 50
+    },
+    'Notification': {
+      type: 'ui', template: 'notification', width: 300, height: 72,
+      notifTitle: 'Sync Complete', notifBody: 'All files are up to date.',
+      notifIcon: '✅', notifBg: 'rgba(26,26,46,0.95)', notifAccent: '#4ade80'
+    }
   };
+
+
+  // Build live HTML from a UI layer's structured fields
+  function buildUIHtml(layer) {
+    const t = layer.template;
+    if (t === 'card') {
+      const bg     = layer.cardBg     || '#1a1a2e';
+      const accent = layer.cardAccent || '#7c3aed';
+      const icon   = layer.cardIcon   || '✦';
+      const title  = layer.cardTitle  || 'Card';
+      const sub    = layer.cardSubtitle || '';
+      return `<div style="width:100%;height:100%;box-sizing:border-box;background:${bg};border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:10px;background:${accent};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${icon}</div><div style="overflow:hidden;"><div style="color:#fff;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div><div style="color:rgba(255,255,255,0.45);font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sub}</div></div></div><div style="height:3px;background:linear-gradient(90deg,${accent},transparent);border-radius:2px;margin-top:10px;"></div></div>`;
+    }
+    if (t === 'button') {
+      const bg     = layer.btnBg      || '#7c3aed';
+      const color  = layer.btnColor   || '#fff';
+      const label  = layer.btnLabel   || 'Button';
+      const radius = layer.btnRadius  != null ? layer.btnRadius : 14;
+      const fs     = layer.btnFontSize || 15;
+      return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${bg};border-radius:${radius}px;cursor:default;box-shadow:0 6px 20px rgba(0,0,0,0.25);"><span style="color:${color};font-weight:700;font-size:${fs}px;pointer-events:none;">${label}</span></div>`;
+    }
+    if (t === 'avatar') {
+      const url      = layer.avatarUrl      || '';
+      const initials = layer.avatarInitials || '?';
+      const bg       = layer.avatarBg       || '#7c3aed';
+      const radius   = layer.avatarRadius   != null ? layer.avatarRadius : 50;
+      const borderR  = radius + '%';
+      if (url) {
+        return `<div style="width:100%;height:100%;border-radius:${borderR};overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.35);"><img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" draggable="false"/></div>`;
+      }
+      return `<div style="width:100%;height:100%;border-radius:${borderR};background:${bg};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.35);">${initials}</div>`;
+    }
+    if (t === 'notification') {
+      const bg     = layer.notifBg     || 'rgba(26,26,46,0.95)';
+      const accent = layer.notifAccent || '#4ade80';
+      const icon   = layer.notifIcon   || '🔔';
+      const title  = layer.notifTitle  || 'Notification';
+      const body   = layer.notifBody   || '';
+      return `<div style="width:100%;height:100%;box-sizing:border-box;background:${bg};border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;overflow:hidden;"><div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${icon}</div><div style="flex:1;overflow:hidden;"><div style="color:#fff;font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div><div style="color:rgba(255,255,255,0.45);font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${body}</div></div><div style="width:8px;height:8px;border-radius:50%;background:${accent};flex-shrink:0;box-shadow:0 0 8px ${accent};"></div></div>`;
+    }
+    return layer.html || '';
+  }
 
   // Asset defaults
   const defaultAssets = [
@@ -335,6 +394,36 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="canvas-ctrl-btn" id="btnZoomIn">+</button>
         <button class="canvas-ctrl-btn" id="btnZoomFit">Fit</button>
         <button class="canvas-ctrl-btn" id="btnSnapToggle" style="color:#7c3aed;">Snap Grid</button>
+        <div style="width:1px;height:16px;background:rgba(255,255,255,0.12);margin:0 2px;"></div>
+        <button class="canvas-ctrl-btn" id="btnCanvasResize" title="Resize Canvas">⬚ <span id="canvasSizeLabel">800×600</span></button>
+      </div>
+
+      <!-- Canvas Resize Modal -->
+      <div id="canvasResizeModal" style="display:none;position:absolute;bottom:52px;right:12px;
+        background:var(--bg-sidebar);border:1px solid var(--card-border);border-radius:12px;
+        padding:1rem;width:240px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div style="font-size:0.72rem;font-weight:700;color:#a78bfa;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.5px;">Canvas Size</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:0.75rem;">
+          <button class="canvas-preset-btn" data-w="800" data-h="600">800×600</button>
+          <button class="canvas-preset-btn" data-w="1920" data-h="1080">1920×1080</button>
+          <button class="canvas-preset-btn" data-w="1080" data-h="1920">1080×1920</button>
+          <button class="canvas-preset-btn" data-w="1080" data-h="1080">1080×1080</button>
+          <button class="canvas-preset-btn" data-w="390" data-h="844">390×844 (iOS)</button>
+          <button class="canvas-preset-btn" data-w="360" data-h="800">360×800 (Android)</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:0.5rem;">
+          <input type="number" id="canvasCustomW" placeholder="W" min="100" max="4000" value="800"
+            style="width:70px;padding:5px 8px;background:rgba(255,255,255,0.06);border:1px solid var(--card-border);
+            border-radius:6px;color:var(--text-primary);font-size:0.75rem;"/>
+          <span style="color:var(--text-muted);font-size:0.75rem;">×</span>
+          <input type="number" id="canvasCustomH" placeholder="H" min="100" max="4000" value="600"
+            style="width:70px;padding:5px 8px;background:rgba(255,255,255,0.06);border:1px solid var(--card-border);
+            border-radius:6px;color:var(--text-primary);font-size:0.75rem;"/>
+          <button id="btnApplyCanvasSize"
+            style="flex:1;padding:5px 8px;background:#7c3aed;color:#fff;border:none;border-radius:6px;
+            font-size:0.72rem;font-weight:700;cursor:pointer;">Apply</button>
+        </div>
+        <div style="font-size:0.62rem;color:var(--text-muted);">Resizing scales the viewport frame only. Layers keep their positions.</div>
       </div>
     `;
     mainContent.insertBefore(canvasWrapper, document.querySelector('.bottom-panel'));
@@ -1024,6 +1113,36 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('btnSnapToggle').style.color = state.snapGrid ? '#7c3aed' : 'var(--text-muted)';
     });
 
+    // Canvas resize modal toggle
+    const resizeModal = document.getElementById('canvasResizeModal');
+    document.getElementById('btnCanvasResize').addEventListener('click', (e) => {
+      e.stopPropagation();
+      resizeModal.style.display = resizeModal.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+      if (!resizeModal.contains(e.target) && e.target.id !== 'btnCanvasResize') {
+        resizeModal.style.display = 'none';
+      }
+    });
+
+    // Preset buttons
+    resizeModal.querySelectorAll('.canvas-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyCanvasSize(parseInt(btn.dataset.w), parseInt(btn.dataset.h));
+        resizeModal.style.display = 'none';
+      });
+    });
+
+    // Custom apply
+    document.getElementById('btnApplyCanvasSize').addEventListener('click', () => {
+      const w = parseInt(document.getElementById('canvasCustomW').value);
+      const h = parseInt(document.getElementById('canvasCustomH').value);
+      if (w >= 100 && h >= 100) {
+        applyCanvasSize(w, h);
+        resizeModal.style.display = 'none';
+      }
+    });
+
     // Mouse wheel Zoom
     wrapper.addEventListener('wheel', (e) => {
       if (e.ctrlKey) {
@@ -1281,29 +1400,42 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRulers();
   }
 
-  // Fit the 800x600 canvas into the wrapper with padding, perfectly centered
+  // Apply a new canvas size — updates the viewport frame and re-centers
+  function applyCanvasSize(w, h) {
+    state.canvasWidth  = w;
+    state.canvasHeight = h;
+    const vp = document.getElementById('canvasViewport');
+    if (vp) {
+      vp.style.width  = w + 'px';
+      vp.style.height = h + 'px';
+    }
+    document.getElementById('canvasSizeLabel').textContent = `${w}×${h}`;
+    document.getElementById('canvasCustomW').value = w;
+    document.getElementById('canvasCustomH').value = h;
+    centerCanvas();
+    renderRulers();
+    showToast(`Canvas: ${w}×${h}`);
+  }
+
+  // Fit the canvas into the wrapper with padding, perfectly centered
   function centerCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
-    if (!wrapper) return;
+    if (!wrapper) return false;
 
     const wW = wrapper.clientWidth;
     const wH = wrapper.clientHeight;
-
-    // Need real dimensions — bail if layout hasn't happened yet
     if (wW < 100 || wH < 100) return false;
 
-    const CANVAS_W = 800;
-    const CANVAS_H = 600;
-    const PADDING  = 64; // breathing room around canvas
+    const CANVAS_W = state.canvasWidth  || 800;
+    const CANVAS_H = state.canvasHeight || 600;
+    const PADDING  = 64;
 
-    // Fit zoom so canvas fills wrapper with padding on all sides
     const fitZoom = Math.min(
       (wW - PADDING * 2) / CANVAS_W,
       (wH - PADDING * 2) / CANVAS_H
     );
-    state.zoom = Math.max(0.25, Math.min(1.5, parseFloat(fitZoom.toFixed(3))));
+    state.zoom = Math.max(0.1, Math.min(2, parseFloat(fitZoom.toFixed(3))));
 
-    // Center at the computed zoom
     const scaledW = CANVAS_W * state.zoom;
     const scaledH = CANVAS_H * state.zoom;
     state.panX = Math.round((wW - scaledW) / 2);
@@ -1417,7 +1549,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (layer.type === 'ui') {
         const uiDiv = document.createElement('div');
         uiDiv.className = 'element-ui';
-        uiDiv.innerHTML = layer.html;
+        uiDiv.innerHTML = buildUIHtml(layer);
         div.appendChild(uiDiv);
       } else if (layer.type === 'group') {
         // Render a transparent group container with dashed outline + child previews
@@ -1783,6 +1915,151 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="number" class="property-input prop-change" data-prop="radius" value="${layer.radius || 0}"/>
         </div>
       `;
+    } else if (layer.type === 'ui') {
+      const t = layer.template;
+
+      if (t === 'card') {
+        fields += `
+          <div class="inspector-sec-title">Card Content</div>
+          <div class="property-group">
+            <label class="property-lbl">Icon / Emoji</label>
+            <input type="text" class="property-input ui-prop" data-prop="cardIcon" value="${escapeHTML(layer.cardIcon||'✦')}"/>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Title</label>
+            <input type="text" class="property-input ui-prop" data-prop="cardTitle" value="${escapeHTML(layer.cardTitle||'')}"/>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Subtitle</label>
+            <input type="text" class="property-input ui-prop" data-prop="cardSubtitle" value="${escapeHTML(layer.cardSubtitle||'')}"/>
+          </div>
+          <div class="inspector-sec-title" style="margin-top:0.75rem;">Card Style</div>
+          <div class="property-row-split">
+            <div class="property-group">
+              <label class="property-lbl">Background</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="cardBg" value="${layer.cardBg||'#1a1a2e'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="cardBg" value="${escapeHTML(layer.cardBg||'#1a1a2e')}" style="flex:1;"/>
+              </div>
+            </div>
+            <div class="property-group">
+              <label class="property-lbl">Accent</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="cardAccent" value="${layer.cardAccent||'#7c3aed'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="cardAccent" value="${escapeHTML(layer.cardAccent||'#7c3aed')}" style="flex:1;"/>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      if (t === 'button') {
+        fields += `
+          <div class="inspector-sec-title">Button Content</div>
+          <div class="property-group">
+            <label class="property-lbl">Label Text</label>
+            <input type="text" class="property-input ui-prop" data-prop="btnLabel" value="${escapeHTML(layer.btnLabel||'Button')}"/>
+          </div>
+          <div class="inspector-sec-title" style="margin-top:0.75rem;">Button Style</div>
+          <div class="property-row-split">
+            <div class="property-group">
+              <label class="property-lbl">Background</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="btnBg" value="${layer.btnBg||'#7c3aed'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="btnBg" value="${escapeHTML(layer.btnBg||'#7c3aed')}" style="flex:1;"/>
+              </div>
+            </div>
+            <div class="property-group">
+              <label class="property-lbl">Text Color</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="btnColor" value="${layer.btnColor||'#ffffff'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="btnColor" value="${escapeHTML(layer.btnColor||'#ffffff')}" style="flex:1;"/>
+              </div>
+            </div>
+          </div>
+          <div class="property-row-split">
+            <div class="property-group">
+              <label class="property-lbl">Border Radius</label>
+              <input type="number" class="property-input ui-prop" data-prop="btnRadius" value="${layer.btnRadius??14}"/>
+            </div>
+            <div class="property-group">
+              <label class="property-lbl">Font Size</label>
+              <input type="number" class="property-input ui-prop" data-prop="btnFontSize" value="${layer.btnFontSize||15}"/>
+            </div>
+          </div>`;
+      }
+
+      if (t === 'avatar') {
+        fields += `
+          <div class="inspector-sec-title">Avatar Image</div>
+          <div class="property-group">
+            <label class="property-lbl">Image URL</label>
+            <input type="text" class="property-input ui-prop" data-prop="avatarUrl"
+              placeholder="https://... or drop an image file below"
+              value="${escapeHTML(layer.avatarUrl||'')}"/>
+          </div>
+          <div id="avatarDropZone" style="border:2px dashed rgba(124,58,237,0.4);border-radius:10px;
+            padding:14px;text-align:center;cursor:pointer;margin-bottom:0.5rem;
+            background:rgba(124,58,237,0.05);transition:all 0.2s;">
+            <div style="font-size:1.5rem;">🖼️</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Drop image or click to upload</div>
+            <input type="file" id="avatarFileInput" accept="image/*" style="display:none;"/>
+          </div>
+          ${layer.avatarUrl ? `<div style="display:flex;justify-content:center;margin-bottom:0.5rem;">
+            <img src="${escapeHTML(layer.avatarUrl)}" style="width:56px;height:56px;border-radius:${layer.avatarRadius??50}%;object-fit:cover;border:2px solid rgba(124,58,237,0.4);"/>
+          </div>` : ''}
+          <div class="inspector-sec-title" style="margin-top:0.5rem;">Fallback (no image)</div>
+          <div class="property-row-split">
+            <div class="property-group">
+              <label class="property-lbl">Initials</label>
+              <input type="text" class="property-input ui-prop" data-prop="avatarInitials" maxlength="3" value="${escapeHTML(layer.avatarInitials||'AB')}"/>
+            </div>
+            <div class="property-group">
+              <label class="property-lbl">BG Color</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="avatarBg" value="${layer.avatarBg||'#7c3aed'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="avatarBg" value="${escapeHTML(layer.avatarBg||'#7c3aed')}" style="flex:1;"/>
+              </div>
+            </div>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Shape Roundness (0=square, 50=circle)</label>
+            <input type="range" class="property-input ui-prop" data-prop="avatarRadius" min="0" max="50" value="${layer.avatarRadius??50}" style="width:100%;"/>
+          </div>`;
+      }
+
+      if (t === 'notification') {
+        fields += `
+          <div class="inspector-sec-title">Notification Content</div>
+          <div class="property-group">
+            <label class="property-lbl">Icon / Emoji</label>
+            <input type="text" class="property-input ui-prop" data-prop="notifIcon" value="${escapeHTML(layer.notifIcon||'🔔')}"/>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Title</label>
+            <input type="text" class="property-input ui-prop" data-prop="notifTitle" value="${escapeHTML(layer.notifTitle||'')}"/>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Body Text</label>
+            <input type="text" class="property-input ui-prop" data-prop="notifBody" value="${escapeHTML(layer.notifBody||'')}"/>
+          </div>
+          <div class="inspector-sec-title" style="margin-top:0.75rem;">Notification Style</div>
+          <div class="property-row-split">
+            <div class="property-group">
+              <label class="property-lbl">Background</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="notifBg" value="${layer.notifBg&&layer.notifBg.startsWith('#')?layer.notifBg:'#1a1a2e'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="notifBg" value="${escapeHTML(layer.notifBg||'rgba(26,26,46,0.95)')}" style="flex:1;"/>
+              </div>
+            </div>
+            <div class="property-group">
+              <label class="property-lbl">Dot Color</label>
+              <div class="property-color-picker">
+                <input type="color" class="prop-color-input ui-color-prop" data-prop="notifAccent" value="${layer.notifAccent||'#4ade80'}"/>
+                <input type="text" class="property-input ui-prop" data-prop="notifAccent" value="${escapeHTML(layer.notifAccent||'#4ade80')}" style="flex:1;"/>
+              </div>
+            </div>
+          </div>`;
+      }
     }
 
     // Group-specific controls
@@ -1930,15 +2207,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const prop = input.dataset.prop;
         layer[prop] = input.value;
         const matchingInput = container.querySelector(`.property-input.prop-change[data-prop="${prop}"]`);
-        if (matchingInput) {
-          matchingInput.value = input.value;
-        }
+        if (matchingInput) matchingInput.value = input.value;
         renderCanvas();
       });
-      input.addEventListener('change', () => {
-        saveState();
-      });
+      input.addEventListener('change', () => { saveState(); });
     });
+
+    // UI component field listeners — update layer field, rebuild html live
+    function refreshUILayer() {
+      const uiEl = viewportNode && viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"] .element-ui`);
+      if (uiEl) uiEl.innerHTML = buildUIHtml(layer);
+      saveState();
+    }
+
+    container.querySelectorAll('.ui-prop').forEach(input => {
+      input.addEventListener('input', () => {
+        const prop = input.dataset.prop;
+        layer[prop] = input.type === 'number' ? parseFloat(input.value) : input.value;
+        const uiEl = viewportNode && viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"] .element-ui`);
+        if (uiEl) uiEl.innerHTML = buildUIHtml(layer);
+      });
+      input.addEventListener('change', () => { saveState(); });
+    });
+
+    container.querySelectorAll('.ui-color-prop').forEach(picker => {
+      picker.addEventListener('input', () => {
+        const prop = picker.dataset.prop;
+        layer[prop] = picker.value;
+        // sync paired text input
+        const textInput = container.querySelector(`.ui-prop[data-prop="${prop}"]`);
+        if (textInput) textInput.value = picker.value;
+        const uiEl = viewportNode && viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"] .element-ui`);
+        if (uiEl) uiEl.innerHTML = buildUIHtml(layer);
+      });
+      picker.addEventListener('change', () => { saveState(); });
+    });
+
+    // Avatar image upload — file input click + drag-drop zone
+    const avatarDrop = container.querySelector('#avatarDropZone');
+    const avatarFile = container.querySelector('#avatarFileInput');
+    if (avatarDrop && avatarFile) {
+      avatarDrop.addEventListener('click', () => avatarFile.click());
+
+      avatarDrop.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        avatarDrop.style.background = 'rgba(124,58,237,0.15)';
+        avatarDrop.style.borderColor = 'rgba(124,58,237,0.8)';
+      });
+      avatarDrop.addEventListener('dragleave', () => {
+        avatarDrop.style.background = 'rgba(124,58,237,0.05)';
+        avatarDrop.style.borderColor = 'rgba(124,58,237,0.4)';
+      });
+      avatarDrop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        avatarDrop.style.background = 'rgba(124,58,237,0.05)';
+        avatarDrop.style.borderColor = 'rgba(124,58,237,0.4)';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) loadAvatarFile(file);
+      });
+
+      avatarFile.addEventListener('change', () => {
+        if (avatarFile.files[0]) loadAvatarFile(avatarFile.files[0]);
+      });
+
+      function loadAvatarFile(file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          layer.avatarUrl = ev.target.result; // base64 data URL
+          refreshUILayer();
+          renderPropertyPanel(); // re-render to show preview thumbnail
+        };
+        reader.readAsDataURL(file);
+      }
+    }
 
     // Animation configuration values
     container.querySelectorAll('.anim-change').forEach(input => {
@@ -2387,20 +2728,90 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Import / Export System ---
-  function exportProjectJSON() {
-    const projectJSON = {
-      project: state.project,
-      scenes: state.scenes
+
+  // Clean a single layer down to only what's needed for animation playback
+  function exportCleanLayer(layer) {
+    // Fields that are pure internal/rendering state — never exported
+    const STRIP = ['html', 'url', '_animCache', '_snapAnim', '_compiledKeyframes',
+                   'fill', 'shapeType', 'radius', 'fontFamily', 'fontWeight',
+                   'letterSpacing', 'lineHeight', 'alignment', 'content'];
+
+    const clean = {
+      id:       layer.id,
+      name:     layer.name,
+      type:     layer.type,
+      x:        layer.x,
+      y:        layer.y,
+      width:    layer.width,
+      height:   layer.height,
+      opacity:  layer.opacity,
+      rotation: layer.rotation || 0,
     };
-    
-    const blob = new Blob([JSON.stringify(projectJSON, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${state.project.name.replace(/\s+/g, '_').toLowerCase()}_workspace.json`;
+
+    // Only include text content as a label (not full HTML)
+    if (layer.type === 'text') clean.text = layer.content || '';
+    if (layer.type === 'image' && layer.url && !layer.url.startsWith('data:')) {
+      clean.imageUrl = layer.url; // external URLs only — no base64 blobs
+    }
+
+    // Animations — strip internal cache keys
+    if (layer.animations && layer.animations.length > 0) {
+      clean.animations = layer.animations.map(anim => {
+        const a = {
+          id:        anim.id,
+          name:      anim.name,
+          start:     anim.start,
+          duration:  anim.duration,
+          easing:    anim.easing,
+          direction: anim.direction,
+          fill:      anim.fill,
+        };
+        if (anim.infinite) a.infinite = true;
+        if (anim.keyframes && anim.keyframes.length > 0) a.keyframes = anim.keyframes;
+        return a;
+      });
+    } else {
+      clean.animations = [];
+    }
+
+    // Groups — export children recursively
+    if (layer.type === 'group' && layer.children) {
+      clean.children = layer.children.map(exportCleanLayer);
+    }
+
+    return clean;
+  }
+
+  function exportProjectJSON() {
+    const W = state.canvasWidth  || 800;
+    const H = state.canvasHeight || 600;
+
+    const exportData = {
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      canvas: { width: W, height: H },
+      duration: state.duration,
+      scenes: state.scenes
+        .filter(s => s.layers && s.layers.length > 0)  // skip empty scenes
+        .map(scene => ({
+          id:         scene.id,
+          name:       scene.name,
+          transition: scene.transition || 'fade',
+          layers: scene.layers
+            .filter(l => l.visible !== false)           // skip hidden layers
+            .map(exportCleanLayer)
+        }))
+    };
+
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `animation_export_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast("Project Exported!");
+    showToast(`Exported ${exportData.scenes.length} scene(s)`);
   }
 
   function importProjectJSON(file) {

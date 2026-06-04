@@ -473,7 +473,7 @@
 .canvas-ctrl-btn {
   background: transparent;
   border: none;
-  color: var(--text-light);
+  color: #7c3aed;
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 700;
@@ -497,6 +497,26 @@
   color: #a78bfa;
   min-width: 42px;
   text-align: center;
+}
+
+/* Canvas resize modal preset buttons */
+.canvas-preset-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.canvas-preset-btn:hover {
+  background: rgba(124,58,237,0.2);
+  border-color: rgba(124,58,237,0.5);
+  color: #a78bfa;
 }
 
 /* Canvas Dropped Elements */
