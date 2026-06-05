@@ -447,6 +447,23 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   pointer-events: auto;
   border-radius: 4px;
+  overflow: visible;
+}
+
+/* Image Frame Layer — rectangle with image fill + pan/zoom */
+.image-frame-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  border-radius: inherit;
+}
+.image-frame-inner img {
+  position: absolute;
+  transform-origin: center center;
+  pointer-events: none;
+  user-select: none;
+  draggable: false;
 }
 
 .light-theme .canvas-viewport-frame {
@@ -1063,4 +1080,3 @@
   outline: 2px solid #a78bfa !important;
   background: rgba(167, 139, 250, 0.1) !important;
 }
-

@@ -2149,7 +2149,180 @@ input[type="range"]::-webkit-slider-thumb:hover {
   100% { transform: scale(1); }
 }
 
+/* ── Zoom In ──────────────────────────────────────────────── */
+.anim-zoom-in {
+  animation-name: zoomIn;
+}
+@keyframes zoomIn {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
 
+/* ── Zoom Out ─────────────────────────────────────────────── */
+.anim-zoom-out {
+  animation-name: zoomOut;
+}
+@keyframes zoomOut {
+  0%   { transform: scale(1.5); opacity: 0; }
+  60%  { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+
+/* ================================================================
+   ZOOM & RESIZE KEYFRAMES — STATIC + ANIMATED ELEMENTS
+   These keyframes work on both animated layers (via .anim-* class)
+   and static elements (apply the class + animation manually or
+   leave animation unset — keyframes stay defined and ready).
+   ================================================================ */
+
+/* ── Zoom Pulse — zoom 100% → 0% → 100% (2s, static-safe) ──── */
+.anim-zoom-pulse {
+  animation-name: zoomPulse;
+}
+@keyframes zoomPulse {
+  0%   { zoom: 1;    transform: scale(1);    }
+  25%  { zoom: 0.6;  transform: scale(0.6);  }
+  50%  { zoom: 0;    transform: scale(0);    opacity: 0; }
+  75%  { zoom: 0.6;  transform: scale(0.6);  opacity: 0.6; }
+  100% { zoom: 1;    transform: scale(1);    opacity: 1; }
+}
+
+/* ── Zoom In Static — scale 0% → 100%, 2s, keeps final size ─── */
+.anim-zoom-in-static {
+  animation-name: zoomInStatic;
+}
+@keyframes zoomInStatic {
+  0%   { zoom: 0;    transform: scale(0);    opacity: 0; }
+  60%  { zoom: 1.05; transform: scale(1.05); opacity: 1; }
+  100% { zoom: 1;    transform: scale(1);    opacity: 1; }
+}
+
+/* ── Zoom Out Static — scale 100% → 0%, 2s ───────────────────── */
+.anim-zoom-out-static {
+  animation-name: zoomOutStatic;
+}
+@keyframes zoomOutStatic {
+  0%   { zoom: 1;    transform: scale(1);    opacity: 1; }
+  60%  { zoom: 0.05; transform: scale(0.05); opacity: 0.2; }
+  100% { zoom: 0;    transform: scale(0);    opacity: 0; }
+}
+
+/* ── Zoom Breathe — gentle zoom in/out loop for static images ── */
+.anim-zoom-breathe {
+  animation-name: zoomBreathe;
+}
+@keyframes zoomBreathe {
+  0%   { zoom: 1;    transform: scale(1);    }
+  50%  { zoom: 1.12; transform: scale(1.12); }
+  100% { zoom: 1;    transform: scale(1);    }
+}
+
+/* ── Resize Grow — width & height expand from 0 ─────────────── */
+.anim-resize-grow {
+  animation-name: resizeGrow;
+  transform-origin: center center;
+}
+@keyframes resizeGrow {
+  0%   { width: 0%;    height: 0%;    transform: scale(0);    opacity: 0; }
+  40%  { width: 105%;  height: 105%;  transform: scale(1.05); opacity: 1; }
+  100% { width: 100%;  height: 100%;  transform: scale(1);    opacity: 1; }
+}
+
+/* ── Resize Shrink — width & height collapse to 0 ────────────── */
+.anim-resize-shrink {
+  animation-name: resizeShrink;
+  transform-origin: center center;
+}
+@keyframes resizeShrink {
+  0%   { width: 100%;  height: 100%;  transform: scale(1);    opacity: 1; }
+  60%  { width: 5%;    height: 5%;    transform: scale(0.05); opacity: 0.3; }
+  100% { width: 0%;    height: 0%;    transform: scale(0);    opacity: 0; }
+}
+
+/* ── Width Expand — horizontal grow only ─────────────────────── */
+.anim-width-expand {
+  animation-name: widthExpand;
+  transform-origin: left center;
+  overflow: hidden;
+}
+@keyframes widthExpand {
+  0%   { width: 0%;   transform: scaleX(0); opacity: 0; }
+  70%  { width: 105%; transform: scaleX(1.05); opacity: 1; }
+  100% { width: 100%; transform: scaleX(1);    opacity: 1; }
+}
+
+/* ── Height Expand — vertical grow only ─────────────────────── */
+.anim-height-expand {
+  animation-name: heightExpand;
+  transform-origin: center top;
+  overflow: hidden;
+}
+@keyframes heightExpand {
+  0%   { height: 0%;   transform: scaleY(0); opacity: 0; }
+  70%  { height: 105%; transform: scaleY(1.05); opacity: 1; }
+  100% { height: 100%; transform: scaleY(1);    opacity: 1; }
+}
+
+/* ── Size Pulse — rhythmic width+height throb ────────────────── */
+.anim-size-pulse {
+  animation-name: sizePulse;
+}
+@keyframes sizePulse {
+  0%   { transform: scale(1);    zoom: 1;    }
+  30%  { transform: scale(1.18); zoom: 1.18; }
+  60%  { transform: scale(0.9);  zoom: 0.9;  }
+  80%  { transform: scale(1.06); zoom: 1.06; }
+  100% { transform: scale(1);    zoom: 1;    }
+}
+
+/* ── Zoom Flip — zoom out then back in (good for image swap) ─── */
+.anim-zoom-flip {
+  animation-name: zoomFlip;
+}
+@keyframes zoomFlip {
+  0%   { transform: scale(1)    rotateY(0deg);   zoom: 1;    opacity: 1; }
+  40%  { transform: scale(0.1)  rotateY(90deg);  zoom: 0.1;  opacity: 0.2; }
+  50%  { transform: scale(0.1)  rotateY(-90deg); zoom: 0.1;  opacity: 0.2; }
+  100% { transform: scale(1)    rotateY(0deg);   zoom: 1;    opacity: 1; }
+}
+
+/* ── Zoom Snap — snappy zoom-in from tiny to full ────────────── */
+.anim-zoom-snap {
+  animation-name: zoomSnap;
+}
+@keyframes zoomSnap {
+  0%   { transform: scale(0);    zoom: 0;    opacity: 0; }
+  55%  { transform: scale(1.15); zoom: 1.15; opacity: 1; }
+  75%  { transform: scale(0.95); zoom: 0.95; }
+  90%  { transform: scale(1.04); zoom: 1.04; }
+  100% { transform: scale(1);    zoom: 1;    opacity: 1; }
+}
+
+/* ── Resize Bounce — bouncy size entrance ───────────────────── */
+.anim-resize-bounce {
+  animation-name: resizeBounce;
+  transform-origin: bottom center;
+}
+@keyframes resizeBounce {
+  0%   { transform: scaleY(0) scaleX(1.4); opacity: 0; }
+  40%  { transform: scaleY(1.1) scaleX(0.9); opacity: 1; }
+  65%  { transform: scaleY(0.95) scaleX(1.02); }
+  80%  { transform: scaleY(1.02) scaleX(0.99); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Image Zoom Loop — continuous slow zoom for hero images ──── */
+.anim-image-zoom-loop {
+  animation-name: imageZoomLoop;
+}
+@keyframes imageZoomLoop {
+  0%   { transform: scale(1);    zoom: 1;    }
+  50%  { transform: scale(1.25); zoom: 1.25; }
+  100% { transform: scale(1);    zoom: 1;    }
+}
 
 /* ================================================================
    RESPONSIVENESS & MOBILE SUPPORT

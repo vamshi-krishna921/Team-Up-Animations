@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'Circle': { type: 'shape', shapeType: 'circle', width: 100, height: 100, fill: '#ef4444', stroke: 'transparent', strokeWidth: 0, radius: 50, shadow: 10 },
     'Triangle': { type: 'shape', shapeType: 'triangle', width: 100, height: 100, fill: '#f59e0b', stroke: 'transparent', strokeWidth: 0, shadow: 10 },
     'Line': { type: 'shape', shapeType: 'line', width: 200, height: 8, fill: '#10b981', stroke: 'transparent', strokeWidth: 0, radius: 4 },
+    'Image Frame': { type: 'imageframe', width: 200, height: 200, radius: 0, imgUrl: '', imgScale: 1, imgX: 0, imgY: 0 },
     
     // UI Elements — fields stored in state, html built dynamically via buildUIHtml()
     'Card': {
@@ -1562,6 +1563,44 @@ document.addEventListener('DOMContentLoaded', () => {
           img.style.borderRadius = `${layer.radius}px`;
         }
         div.appendChild(img);
+      } else if (layer.type === 'imageframe') {
+        // Rectangle image frame with overflow:hidden clipping, pan & zoom
+        div.style.borderRadius = `${layer.radius || 0}px`;
+        div.style.overflow = 'hidden';
+        div.style.background = 'rgba(255,255,255,0.05)';
+        div.style.border = layer.imgUrl ? 'none' : '2px dashed rgba(167,139,250,0.4)';
+
+        const inner = document.createElement('div');
+        inner.className = 'image-frame-inner';
+        inner.style.borderRadius = `${layer.radius || 0}px`;
+
+        if (layer.imgUrl) {
+          const img = document.createElement('img');
+          img.src = layer.imgUrl;
+          img.draggable = false;
+          const scale = layer.imgScale || 1;
+          const ox = layer.imgX || 0;
+          const oy = layer.imgY || 0;
+          img.style.cssText = `
+            position:absolute;
+            width:${100 * scale}%;
+            height:${100 * scale}%;
+            left:50%; top:50%;
+            transform: translate(calc(-50% + ${ox}px), calc(-50% + ${oy}px));
+            object-fit:cover;
+            pointer-events:none;
+            user-select:none;
+          `;
+          inner.appendChild(img);
+        } else {
+          inner.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+            width:100%;height:100%;color:rgba(167,139,250,0.6);font-size:13px;gap:6px;pointer-events:none;">
+            <span style="font-size:28px;">🖼️</span>
+            <span>Image Frame</span>
+            <span style="font-size:10px;opacity:0.6;">Select & upload in Inspector</span>
+          </div>`;
+        }
+        div.appendChild(inner);
       } else if (layer.type === 'ui') {
         const uiDiv = document.createElement('div');
         uiDiv.className = 'element-ui';
@@ -1951,6 +1990,50 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="number" class="property-input prop-change" data-prop="radius" value="${layer.radius || 0}"/>
         </div>
       `;
+    } else if (layer.type === 'imageframe') {
+      fields += `
+        <div class="inspector-sec-title">Image Frame</div>
+        <div id="imgframeDropZone" style="border:2px dashed rgba(124,58,237,0.4);border-radius:10px;
+          padding:14px;text-align:center;cursor:pointer;margin-bottom:0.5rem;
+          background:rgba(124,58,237,0.05);transition:all 0.2s;">
+          <div style="font-size:1.5rem;">🖼️</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Drop image or click to upload</div>
+          <input type="file" id="imgframeFileInput" accept="image/*" style="display:none;"/>
+        </div>
+        ${layer.imgUrl ? `<div style="display:flex;justify-content:center;margin-bottom:0.5rem;">
+          <img src="${escapeHTML(layer.imgUrl)}" style="width:72px;height:54px;border-radius:${layer.radius||0}px;object-fit:cover;border:2px solid rgba(124,58,237,0.4);"/>
+        </div>` : ''}
+        <div class="property-group">
+          <label class="property-lbl">Image URL</label>
+          <input type="text" class="property-input imgframe-prop" data-prop="imgUrl"
+            placeholder="https://... or upload above"
+            value="${escapeHTML(layer.imgUrl||'')}"/>
+        </div>
+        <div class="inspector-sec-title" style="margin-top:0.5rem;">Image Position & Scale</div>
+        <div class="property-group">
+          <label class="property-lbl">Scale (1 = fit, &gt;1 = zoom in)</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="range" class="property-input imgframe-prop" data-prop="imgScale"
+              min="0.5" max="4" step="0.05" value="${layer.imgScale||1}" style="flex:1;"/>
+            <span style="font-size:0.72rem;color:#a78bfa;min-width:32px;" id="imgScaleVal">${(layer.imgScale||1).toFixed(2)}×</span>
+          </div>
+        </div>
+        <div class="property-row-split">
+          <div class="property-group">
+            <label class="property-lbl">Pan X (px)</label>
+            <input type="number" class="property-input imgframe-prop" data-prop="imgX" value="${layer.imgX||0}"/>
+          </div>
+          <div class="property-group">
+            <label class="property-lbl">Pan Y (px)</label>
+            <input type="number" class="property-input imgframe-prop" data-prop="imgY" value="${layer.imgY||0}"/>
+          </div>
+        </div>
+        <div class="property-group">
+          <label class="property-lbl">Corner Radius (px)</label>
+          <input type="number" class="property-input imgframe-prop" data-prop="radius" value="${layer.radius||0}"/>
+        </div>
+      `;
+    
     } else if (layer.type === 'ui') {
       const t = layer.template;
 
@@ -2164,23 +2247,35 @@ document.addEventListener('DOMContentLoaded', () => {
         let kfRowsHTML = '';
         kfs.forEach((kf, ki) => {
           kfRowsHTML += `
-            <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr 24px;gap:4px;align-items:center;
+            <div style="display:grid;grid-template-columns:34px repeat(8,1fr) 20px;gap:3px;align-items:center;
               background:rgba(255,255,255,0.03);border-radius:4px;padding:3px 4px;margin-bottom:3px;">
-              <span style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-align:center;">${Math.round(kf.offset*100)}%</span>
+              <span style="font-size:0.60rem;color:#a78bfa;font-weight:700;text-align:center;">${Math.round(kf.offset*100)}%</span>
               <input type="number" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="opacity"
-                placeholder="opacity" min="0" max="1" step="0.1" value="${kf.opacity ?? ''}"
-                style="font-size:0.62rem;padding:2px 4px;" title="Opacity (0–1)"/>
+                placeholder="α" min="0" max="1" step="0.1" value="${kf.opacity ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="Opacity (0–1)"/>
               <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateY"
-                placeholder="Y px" value="${kf.translateY ?? ''}"
-                style="font-size:0.62rem;padding:2px 4px;" title="translateY (px)"/>
+                placeholder="Y" value="${kf.translateY ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="translateY (px)"/>
               <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateX"
-                placeholder="X px" value="${kf.translateX ?? ''}"
-                style="font-size:0.62rem;padding:2px 4px;" title="translateX (px)"/>
+                placeholder="X" value="${kf.translateX ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="translateX (px)"/>
               <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="scale"
-                placeholder="scale" value="${kf.scale ?? ''}"
-                style="font-size:0.62rem;padding:2px 4px;" title="scale (e.g. 0.8)"/>
+                placeholder="sc" value="${kf.scale ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="scale (e.g. 0.8 or 1.2)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="rotate"
+                placeholder="rot" value="${kf.rotate ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="rotate (degrees, e.g. 45)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="width"
+                placeholder="W%" value="${kf.width ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="width (%, px or auto — e.g. 50% or 200px)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="height"
+                placeholder="H%" value="${kf.height ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="height (%, px or auto — e.g. 50% or 200px)"/>
+              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="zoom"
+                placeholder="zm" value="${kf.zoom ?? ''}"
+                style="font-size:0.60rem;padding:2px 3px;" title="zoom (e.g. 0 = invisible, 1 = normal, 1.5 = 150%)"/>
               <button class="kf-del-btn" data-anim-id="${animId}" data-ki="${ki}"
-                style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0;line-height:1;">✕</button>
+                style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0;line-height:1;">✕</button>
             </div>`;
         });
 
@@ -2240,12 +2335,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
               </div>
               ${kfs.length > 0 ? `
-                <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 1fr 24px;gap:4px;margin-bottom:3px;padding:0 4px;">
-                  <span style="font-size:0.58rem;color:var(--text-muted);text-align:center;">%</span>
-                  <span style="font-size:0.58rem;color:var(--text-muted);">Opacity</span>
-                  <span style="font-size:0.58rem;color:var(--text-muted);">Y (px)</span>
-                  <span style="font-size:0.58rem;color:var(--text-muted);">X (px)</span>
-                  <span style="font-size:0.58rem;color:var(--text-muted);">Scale</span>
+                <div style="display:grid;grid-template-columns:34px repeat(8,1fr) 20px;gap:3px;margin-bottom:3px;padding:0 4px;">
+                  <span style="font-size:0.57rem;color:var(--text-muted);text-align:center;">%</span>
+                  <span style="font-size:0.57rem;color:var(--text-muted);">Opacity</span>
+                  <span style="font-size:0.57rem;color:var(--text-muted);">Y px</span>
+                  <span style="font-size:0.57rem;color:var(--text-muted);">X px</span>
+                  <span style="font-size:0.57rem;color:var(--text-muted);">Scale</span>
+                  <span style="font-size:0.57rem;color:var(--text-muted);">Rot°</span>
+                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Width</span>
+                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Height</span>
+                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Zoom</span>
                   <span></span>
                 </div>
                 ${kfRowsHTML}
@@ -2316,6 +2415,59 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiEl) uiEl.innerHTML = buildUIHtml(layer);
       });
       picker.addEventListener('change', () => { saveState(); });
+    });
+
+    // Image Frame — upload, URL, pan/scale controls
+    const imgframeDrop = container.querySelector('#imgframeDropZone');
+    const imgframeFile = container.querySelector('#imgframeFileInput');
+    if (imgframeDrop && imgframeFile) {
+      imgframeDrop.addEventListener('click', () => imgframeFile.click());
+      imgframeDrop.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        imgframeDrop.style.background = 'rgba(124,58,237,0.15)';
+        imgframeDrop.style.borderColor = 'rgba(124,58,237,0.8)';
+      });
+      imgframeDrop.addEventListener('dragleave', () => {
+        imgframeDrop.style.background = 'rgba(124,58,237,0.05)';
+        imgframeDrop.style.borderColor = 'rgba(124,58,237,0.4)';
+      });
+      imgframeDrop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        imgframeDrop.style.background = 'rgba(124,58,237,0.05)';
+        imgframeDrop.style.borderColor = 'rgba(124,58,237,0.4)';
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) loadImgframeFile(file);
+      });
+      imgframeFile.addEventListener('change', () => {
+        if (imgframeFile.files[0]) loadImgframeFile(imgframeFile.files[0]);
+      });
+      function loadImgframeFile(file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          layer.imgUrl = ev.target.result;
+          saveState();
+          renderCanvas();
+          renderPropertyPanel();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Imageframe property inputs (URL, scale, panX, panY, radius)
+    container.querySelectorAll('.imgframe-prop').forEach(input => {
+      input.addEventListener('input', () => {
+        const prop = input.dataset.prop;
+        let val = input.value;
+        if (prop === 'imgScale' || prop === 'imgX' || prop === 'imgY' || prop === 'radius') {
+          val = parseFloat(val) || 0;
+        }
+        layer[prop] = val;
+        // Update scale label
+        const scaleLabel = container.querySelector('#imgScaleVal');
+        if (scaleLabel && prop === 'imgScale') scaleLabel.textContent = parseFloat(val).toFixed(2) + '×';
+        renderCanvas();
+      });
+      input.addEventListener('change', () => saveState());
     });
 
     // Avatar image upload — file input click + drag-drop zone
@@ -2531,12 +2683,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Merge into the keyframeMap so previewTimelineAtTime picks them up
     const wapiKfs = anim.keyframes.map(kf => {
       const frame = { offset: kf.offset };
+
+      // ── Opacity ──────────────────────────────────────────────
       if (kf.opacity !== undefined) frame.opacity = kf.opacity;
+
+      // ── Transform (translateX/Y, scale, rotate) ───────────────
       const transforms = [];
       if (kf.translateX !== undefined) transforms.push(`translateX(${kf.translateX}px)`);
       if (kf.translateY !== undefined) transforms.push(`translateY(${kf.translateY}px)`);
-      if (kf.scale !== undefined) transforms.push(`scale(${kf.scale})`);
+      if (kf.scale     !== undefined) transforms.push(`scale(${kf.scale})`);
+      if (kf.rotate    !== undefined) transforms.push(`rotate(${kf.rotate}deg)`);
       if (transforms.length) frame.transform = transforms.join(' ');
+
+      // ── Width ─────────────────────────────────────────────────
+      // Accepts %, px, or bare number (treated as px)
+      if (kf.width !== undefined && kf.width !== '') {
+        const w = String(kf.width).trim();
+        frame.width = /[%a-z]/i.test(w) ? w : `${w}px`;
+      }
+
+      // ── Height ────────────────────────────────────────────────
+      if (kf.height !== undefined && kf.height !== '') {
+        const h = String(kf.height).trim();
+        frame.height = /[%a-z]/i.test(h) ? h : `${h}px`;
+      }
+
+      // ── Zoom ──────────────────────────────────────────────────
+      // CSS zoom is not in the WAAPI spec; we apply it via an inline
+      // style update alongside transform so it works everywhere.
+      if (kf.zoom !== undefined && kf.zoom !== '') {
+        frame.zoom = String(kf.zoom).trim();
+      }
+
       return frame;
     });
     // Store compiled keyframes on the animation itself for the preview engine
@@ -2717,6 +2895,32 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           wa.currentTime = 0;
         }
+
+        // ── Zoom: WAAPI doesn't animate CSS zoom natively.
+        // Manually interpolate it from _compiledKeyframes when zoom is present.
+        const compiledKfs = anim._compiledKeyframes;
+        if (compiledKfs && compiledKfs.some(k => k.zoom !== undefined)) {
+          const progress = inRange
+            ? (state.currentTime - animStart) / anim.duration
+            : past ? 1 : 0;
+          // Find surrounding keyframes
+          const sorted = [...compiledKfs].sort((a, b) => a.offset - b.offset);
+          let fromKf = sorted[0], toKf = sorted[sorted.length - 1];
+          for (let ki = 0; ki < sorted.length - 1; ki++) {
+            if (progress >= sorted[ki].offset && progress <= sorted[ki+1].offset) {
+              fromKf = sorted[ki]; toKf = sorted[ki+1]; break;
+            }
+          }
+          const span = Math.max(0.0001, toKf.offset - fromKf.offset);
+          const t = Math.max(0, Math.min(1, (progress - fromKf.offset) / span));
+          const zFrom = fromKf.zoom !== undefined ? parseFloat(fromKf.zoom) : 1;
+          const zTo   = toKf.zoom   !== undefined ? parseFloat(toKf.zoom)   : 1;
+          const zVal  = zFrom + (zTo - zFrom) * t;
+          elNode.style.zoom = String(zVal);
+        } else if (inRange || past) {
+          // Reset zoom when animation has no zoom keyframes
+          elNode.style.zoom = '';
+        }
       });
 
       // Sync base opacity/rotation for layers with no active animation
@@ -2878,6 +3082,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (layer.type === 'image' && layer.url && !layer.url.startsWith('data:')) {
       clean.imageUrl = layer.url; // external URLs only — no base64 blobs
     }
+    // Image frame — export position/scale, external URL only (no base64)
+    if (layer.type === 'imageframe') {
+      if (layer.imgUrl && !layer.imgUrl.startsWith('data:')) clean.imageUrl = layer.imgUrl;
+      clean.imgScale = layer.imgScale || 1;
+      clean.imgX = layer.imgX || 0;
+      clean.imgY = layer.imgY || 0;
+      clean.radius = layer.radius || 0;
+    }
 
     // Animations — strip internal cache keys
     if (layer.animations && layer.animations.length > 0) {
@@ -2911,6 +3123,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const W = state.canvasWidth  || 800;
     const H = state.canvasHeight || 600;
 
+    // Check if a layer is fully outside the canvas bounds
+    function isOverflowing(layer) {
+      const lx = layer.x || 0;
+      const ly = layer.y || 0;
+      const lw = layer.width || 0;
+      const lh = layer.height || 0;
+      // Fully outside on any side
+      return (lx + lw <= 0) || (ly + lh <= 0) || (lx >= W) || (ly >= H);
+    }
+
+    // Export a layer — if overflowing, strip position/size but keep animations
+    function exportLayer(layer) {
+      const clean = exportCleanLayer(layer);
+      if (isOverflowing(layer)) {
+        clean.overflow = true;   // flag it
+        // Remove position/size — they are outside the visible canvas
+        delete clean.x;
+        delete clean.y;
+        delete clean.width;
+        delete clean.height;
+        delete clean.rotation;
+        delete clean.opacity;
+        delete clean.text;
+        delete clean.imageUrl;
+        delete clean.imgScale;
+        delete clean.imgX;
+        delete clean.imgY;
+        delete clean.radius;
+        // Keep: id, name, type, animations
+      }
+      return clean;
+    }
+
     const exportData = {
       version: '2.0',
       exportedAt: new Date().toISOString(),
@@ -2924,7 +3169,7 @@ document.addEventListener('DOMContentLoaded', () => {
           transition: scene.transition || 'fade',
           layers: scene.layers
             .filter(l => l.visible !== false)           // skip hidden layers
-            .map(exportCleanLayer)
+            .map(exportLayer)
         }))
     };
 
@@ -2970,7 +3215,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnSaveProj').addEventListener('click', () => {
       localStorage.setItem('studio_project', JSON.stringify({
         project: state.project,
-        scenes: state.scenes
+        scenes: state.scenes,
+        canvasWidth: state.canvasWidth,
+        canvasHeight: state.canvasHeight
       }));
       showToast("Project Saved to LocalStorage");
     });
@@ -2983,8 +3230,20 @@ document.addEventListener('DOMContentLoaded', () => {
         state.scenes = data.scenes;
         state.currentSceneId = data.scenes[0].id;
         state.selectedLayerId = null;
+        // Restore canvas dimensions if saved
+        if (data.canvasWidth)  { state.canvasWidth  = data.canvasWidth; }
+        if (data.canvasHeight) { state.canvasHeight = data.canvasHeight; }
+        // Apply the stored canvas size to the viewport DOM node
+        const vp = document.getElementById('canvasViewport');
+        if (vp) {
+          vp.style.width  = state.canvasWidth  + 'px';
+          vp.style.height = state.canvasHeight + 'px';
+        }
+        const canvasSizeLabel = document.getElementById('canvasSizeLabel');
+        if (canvasSizeLabel) canvasSizeLabel.textContent = `${state.canvasWidth}×${state.canvasHeight}`;
         saveState();
         renderAll();
+        centerCanvas();
         showToast("Project Loaded");
       } else {
         document.getElementById('importFile').click();

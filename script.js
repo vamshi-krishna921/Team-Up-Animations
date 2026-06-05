@@ -217,6 +217,95 @@ document.addEventListener('DOMContentLoaded', () => {
       { offset: 0.5, transform: 'translate(12px, -25px) scale(0.7)', opacity: 0.9 },
       { offset: 1, transform: 'translate(25px, -55px) scale(0.2)', opacity: 0 },
     ],
+    'Zoom In': [
+      { offset: 0,   transform: 'scale(0.5)', opacity: 0 },
+      { offset: 0.6, transform: 'scale(1.05)', opacity: 1 },
+      { offset: 1,   transform: 'scale(1)',   opacity: 1 },
+    ],
+    'Zoom Out': [
+      { offset: 0,   transform: 'scale(1.5)', opacity: 0 },
+      { offset: 0.6, transform: 'scale(0.95)', opacity: 1 },
+      { offset: 1,   transform: 'scale(1)',   opacity: 1 },
+    ],
+
+    // ── Static-safe zoom & resize keyframes ──────────────────────────────
+    // These work even WITHOUT an animation applied — just add the class.
+    // The keyframe definitions exist in CSS; animation triggers separately.
+
+    'Zoom Pulse': [
+      { offset: 0,    zoom: '1',   transform: 'scale(1)',   opacity: 1 },
+      { offset: 0.25, zoom: '0.6', transform: 'scale(0.6)' },
+      { offset: 0.5,  zoom: '0',   transform: 'scale(0)',   opacity: 0 },
+      { offset: 0.75, zoom: '0.6', transform: 'scale(0.6)', opacity: 0.6 },
+      { offset: 1,    zoom: '1',   transform: 'scale(1)',   opacity: 1 },
+    ],
+    'Zoom In Static': [
+      { offset: 0,   zoom: '0',    transform: 'scale(0)',    opacity: 0 },
+      { offset: 0.6, zoom: '1.05', transform: 'scale(1.05)', opacity: 1 },
+      { offset: 1,   zoom: '1',    transform: 'scale(1)',    opacity: 1 },
+    ],
+    'Zoom Out Static': [
+      { offset: 0,   zoom: '1',    transform: 'scale(1)',    opacity: 1 },
+      { offset: 0.6, zoom: '0.05', transform: 'scale(0.05)', opacity: 0.2 },
+      { offset: 1,   zoom: '0',    transform: 'scale(0)',    opacity: 0 },
+    ],
+    'Zoom Breathe': [
+      { offset: 0,   zoom: '1',    transform: 'scale(1)'    },
+      { offset: 0.5, zoom: '1.12', transform: 'scale(1.12)' },
+      { offset: 1,   zoom: '1',    transform: 'scale(1)'    },
+    ],
+    'Resize Grow': [
+      { offset: 0,   width: '0%',    height: '0%',    transform: 'scale(0)',    opacity: 0 },
+      { offset: 0.4, width: '105%',  height: '105%',  transform: 'scale(1.05)', opacity: 1 },
+      { offset: 1,   width: '100%',  height: '100%',  transform: 'scale(1)',    opacity: 1 },
+    ],
+    'Resize Shrink': [
+      { offset: 0,   width: '100%',  height: '100%',  transform: 'scale(1)',    opacity: 1 },
+      { offset: 0.6, width: '5%',    height: '5%',    transform: 'scale(0.05)', opacity: 0.3 },
+      { offset: 1,   width: '0%',    height: '0%',    transform: 'scale(0)',    opacity: 0 },
+    ],
+    'Width Expand': [
+      { offset: 0,   width: '0%',   transform: 'scaleX(0)',    opacity: 0 },
+      { offset: 0.7, width: '105%', transform: 'scaleX(1.05)', opacity: 1 },
+      { offset: 1,   width: '100%', transform: 'scaleX(1)',    opacity: 1 },
+    ],
+    'Height Expand': [
+      { offset: 0,   height: '0%',   transform: 'scaleY(0)',    opacity: 0 },
+      { offset: 0.7, height: '105%', transform: 'scaleY(1.05)', opacity: 1 },
+      { offset: 1,   height: '100%', transform: 'scaleY(1)',    opacity: 1 },
+    ],
+    'Size Pulse': [
+      { offset: 0,   transform: 'scale(1)',    zoom: '1'    },
+      { offset: 0.3, transform: 'scale(1.18)', zoom: '1.18' },
+      { offset: 0.6, transform: 'scale(0.9)',  zoom: '0.9'  },
+      { offset: 0.8, transform: 'scale(1.06)', zoom: '1.06' },
+      { offset: 1,   transform: 'scale(1)',    zoom: '1'    },
+    ],
+    'Zoom Flip': [
+      { offset: 0,   transform: 'scale(1) rotateY(0deg)',   zoom: '1',   opacity: 1 },
+      { offset: 0.4, transform: 'scale(0.1) rotateY(90deg)',  zoom: '0.1', opacity: 0.2 },
+      { offset: 0.5, transform: 'scale(0.1) rotateY(-90deg)', zoom: '0.1', opacity: 0.2 },
+      { offset: 1,   transform: 'scale(1) rotateY(0deg)',   zoom: '1',   opacity: 1 },
+    ],
+    'Zoom Snap': [
+      { offset: 0,    transform: 'scale(0)',    zoom: '0',    opacity: 0 },
+      { offset: 0.55, transform: 'scale(1.15)', zoom: '1.15', opacity: 1 },
+      { offset: 0.75, transform: 'scale(0.95)', zoom: '0.95' },
+      { offset: 0.9,  transform: 'scale(1.04)', zoom: '1.04' },
+      { offset: 1,    transform: 'scale(1)',    zoom: '1',    opacity: 1 },
+    ],
+    'Resize Bounce': [
+      { offset: 0,   transform: 'scaleY(0) scaleX(1.4)',     opacity: 0 },
+      { offset: 0.4, transform: 'scaleY(1.1) scaleX(0.9)',   opacity: 1 },
+      { offset: 0.65,transform: 'scaleY(0.95) scaleX(1.02)'              },
+      { offset: 0.8, transform: 'scaleY(1.02) scaleX(0.99)'              },
+      { offset: 1,   transform: 'scale(1)',                  opacity: 1 },
+    ],
+    'Image Zoom Loop': [
+      { offset: 0,   transform: 'scale(1)',    zoom: '1'    },
+      { offset: 0.5, transform: 'scale(1.25)', zoom: '1.25' },
+      { offset: 1,   transform: 'scale(1)',    zoom: '1'    },
+    ],
   };
 
   // ── Unique HTML templates for each animation ─────────────────────────────
@@ -422,7 +511,103 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>$120.00</p>
         </div>
       </div>
-    `
+    `,
+    'Zoom In': `
+      <div class="anim-target zoom-badge">
+        <span class="badge-icon">🔍</span>
+        <span class="badge-title">ZOOM IN</span>
+      </div>
+    `,
+    'Zoom Out': `
+      <div class="anim-target zoom-badge">
+        <span class="badge-icon">🔎</span>
+        <span class="badge-title">ZOOM OUT</span>
+      </div>
+    `,
+    'Zoom Pulse': `
+      <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:16px;">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" alt="Zoom Pulse" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div class="image-reveal-tag">Zoom Pulse</div>
+      </div>
+    `,
+    'Zoom In Static': `
+      <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:16px;">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Zoom In Static" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div class="image-reveal-tag">Zoom In • Static</div>
+      </div>
+    `,
+    'Zoom Out Static': `
+      <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:16px;">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" alt="Zoom Out Static" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div class="image-reveal-tag">Zoom Out • Static</div>
+      </div>
+    `,
+    'Zoom Breathe': `
+      <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:50%;width:160px;height:160px;">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop" alt="Zoom Breathe" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+    `,
+    'Resize Grow': `
+      <div class="anim-target pop-dialog" style="transform-origin:center center;">
+        <div class="pop-check">↔</div>
+        <h3>Resize Grow</h3>
+        <p>Width &amp; height expand from zero to full size</p>
+      </div>
+    `,
+    'Resize Shrink': `
+      <div class="anim-target pop-dialog" style="transform-origin:center center;">
+        <div class="pop-check">⇲</div>
+        <h3>Resize Shrink</h3>
+        <p>Width &amp; height collapse to zero</p>
+      </div>
+    `,
+    'Width Expand': `
+      <div class="anim-target glass-card" style="transform-origin:left center;overflow:hidden;">
+        <div class="card-icon-circle bg-purple">↔</div>
+        <div class="card-content">
+          <h4>Width Expand</h4>
+          <p>Horizontal grow from 0 to full</p>
+        </div>
+      </div>
+    `,
+    'Height Expand': `
+      <div class="anim-target glass-card" style="transform-origin:center top;overflow:hidden;">
+        <div class="card-icon-circle bg-purple">↕</div>
+        <div class="card-content">
+          <h4>Height Expand</h4>
+          <p>Vertical grow from 0 to full</p>
+        </div>
+      </div>
+    `,
+    'Size Pulse': `
+      <div class="anim-target pulse-wrapper">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring delay-1"></div>
+        <div class="heart-icon">⊕</div>
+      </div>
+    `,
+    'Zoom Flip': `
+      <div class="anim-target card-flip-wrapper">
+        <div class="flip-card-front bg-credit" style="display:flex;align-items:center;justify-content:center;font-size:28px;">🔄</div>
+      </div>
+    `,
+    'Zoom Snap': `
+      <div class="anim-target zoom-badge">
+        <span class="badge-icon">⚡</span>
+        <span class="badge-title">ZOOM SNAP</span>
+      </div>
+    `,
+    'Resize Bounce': `
+      <div class="anim-target bounce-group" style="transform-origin:bottom center;">
+        <button class="bounce-btn">Resize Bounce ↕</button>
+      </div>
+    `,
+    'Image Zoom Loop': `
+      <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:16px;">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" alt="Image Zoom Loop" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div class="image-reveal-tag">Zoom Loop</div>
+      </div>
+    `,
   };
 
   const toClass = (name) => 'anim-' + name.toLowerCase().replace(/\s+/g, '-');
