@@ -773,6 +773,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxX = Math.max(...layers.map(l => l.x + l.width));
     const maxY = Math.max(...layers.map(l => l.y + l.height));
 
+    // Deep-clone each child so the group snapshot is independent of state mutations
+    const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
+    // Collect all animations from children — first child's anims become the group default
+    const firstChildAnims = deepClone(layers[0].animations || []);
+
     const groupId = 'group_' + Date.now();
     const group = {
       id: groupId,
@@ -781,11 +787,15 @@ document.addEventListener('DOMContentLoaded', () => {
       x: minX, y: minY,
       width: maxX - minX, height: maxY - minY,
       opacity: 1, visible: true, locked: false, rotation: 0,
-      animations: [],
-      children: layers.map(l => ({ ...l, x: l.x - minX, y: l.y - minY }))
+      // Inherit animations from the first selected layer
+      animations: firstChildAnims.map(a => ({ ...a, id: 'anim_' + Date.now() + Math.random() })),
+      children: layers.map(l => ({
+        ...deepClone(l),
+        x: l.x - minX,
+        y: l.y - minY
+      }))
     };
 
-    // Replace all selected layers with the group, preserving z-order of first member
     const firstIdx = Math.min(...layers.map(l => scene.layers.indexOf(l)));
     scene.layers = scene.layers.filter(l => !ids.includes(l.id));
     scene.layers.splice(firstIdx, 0, group);
@@ -793,7 +803,13 @@ document.addEventListener('DOMContentLoaded', () => {
     selectLayer(groupId, false);
     saveState();
     renderAll();
-    showToast('Layers grouped');
+
+    // Show animation inheritance info
+    if (firstChildAnims.length > 0) {
+      showToast(`Grouped — inherited ${firstChildAnims.length} animation(s) from "${layers[0].name}"`);
+    } else {
+      showToast(`Layers grouped — drag an animation from the catalog to animate the group`);
+    }
   }
 
   function ungroupLayer(groupId) {
@@ -1552,33 +1568,53 @@ document.addEventListener('DOMContentLoaded', () => {
         uiDiv.innerHTML = buildUIHtml(layer);
         div.appendChild(uiDiv);
       } else if (layer.type === 'group') {
-        // Render a transparent group container with dashed outline + child previews
-        div.style.border = '1.5px dashed rgba(124,58,237,0.5)';
+        div.style.border = '1.5px dashed rgba(124,58,237,0.45)';
         div.style.borderRadius = '4px';
-        div.style.background = 'rgba(124,58,237,0.04)';
+        div.style.background = 'rgba(124,58,237,0.03)';
+        div.style.overflow = 'visible'; // children may have shadows/overflow
+
         const label = document.createElement('div');
-        label.style.cssText = `position:absolute;top:-18px;left:0;font-size:9px;font-weight:700;
-          color:#a78bfa;background:rgba(124,58,237,0.15);padding:1px 6px;border-radius:3px;white-space:nowrap;`;
+        label.style.cssText = `position:absolute;top:-20px;left:0;font-size:9px;font-weight:700;
+          color:#a78bfa;background:rgba(124,58,237,0.18);padding:2px 7px;border-radius:3px;
+          white-space:nowrap;pointer-events:none;z-index:1;`;
         label.textContent = layer.name;
         div.appendChild(label);
-        // Render children inside group (read-only preview)
+
+        // Render every child fully — same logic as top-level layer rendering
         (layer.children || []).forEach(child => {
           const cd = document.createElement('div');
           cd.style.cssText = `position:absolute;left:${child.x}px;top:${child.y}px;
-            width:${child.width}px;height:${child.height}px;overflow:hidden;pointer-events:none;`;
+            width:${child.width}px;height:${child.height}px;pointer-events:none;box-sizing:border-box;`;
+
           if (child.type === 'text') {
-            cd.style.fontSize = child.fontSize + 'px';
-            cd.style.fontWeight = child.fontWeight;
-            cd.style.color = child.color;
-            cd.style.lineHeight = child.lineHeight;
-            cd.style.textAlign = child.alignment;
-            cd.textContent = child.content;
+            cd.style.cssText += `font-size:${child.fontSize || 16}px;font-weight:${child.fontWeight || '400'};
+              color:${child.color || '#fff'};line-height:${child.lineHeight || '1.4'};
+              text-align:${child.alignment || 'left'};white-space:pre-wrap;overflow:hidden;`;
+            cd.textContent = child.content || '';
+
           } else if (child.type === 'shape') {
-            cd.style.background = child.fill;
-            cd.style.borderRadius = child.shapeType === 'circle' ? '50%' : (child.radius || 0) + 'px';
+            const isCircle = child.shapeType === 'circle';
+            cd.style.background = child.fill || '#666';
+            cd.style.borderRadius = isCircle ? '50%' : (child.radius || 0) + 'px';
+
           } else if (child.type === 'ui') {
-            cd.innerHTML = child.html || '';
+            // Use buildUIHtml so structured-field components (card, button, avatar, notification)
+            // render correctly — child.html no longer exists for new components
+            const uiWrap = document.createElement('div');
+            uiWrap.className = 'element-ui';
+            uiWrap.style.cssText = 'width:100%;height:100%;';
+            uiWrap.innerHTML = buildUIHtml(child);
+            cd.appendChild(uiWrap);
+
+          } else if (child.type === 'image') {
+            const img = document.createElement('img');
+            img.src = child.url || '';
+            img.style.cssText = `width:100%;height:100%;object-fit:cover;
+              border-radius:${child.radius || 0}px;display:block;`;
+            img.draggable = false;
+            cd.appendChild(img);
           }
+
           div.appendChild(cd);
         });
       }
@@ -2064,9 +2100,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Group-specific controls
     if (layer.type === 'group') {
+      // Summarise what's inside the group
+      const childNames = (layer.children || []).map(c => c.name).join(', ');
+      const childAnims = (layer.children || []).flatMap(c => c.animations || []);
+
+      fields += `
+        <div style="background:rgba(124,58,237,0.07);border:1px solid rgba(124,58,237,0.2);
+          border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.75rem;font-size:0.68rem;
+          color:var(--text-secondary);line-height:1.5;">
+          <div style="font-weight:700;color:#a78bfa;margin-bottom:3px;">Group contains ${(layer.children||[]).length} layers</div>
+          <div style="color:var(--text-muted);">${childNames}</div>
+        </div>`;
+
+      // If group has no animations but children do, offer to inherit them
+      if (layer.animations.length === 0 && childAnims.length > 0 && !layer._animsAcknowledged) {
+        const uniqueAnimNames = [...new Set(childAnims.map(a => a.name))].join(', ');
+        fields += `
+          <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);
+            border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.6rem;">
+            <div style="font-size:0.68rem;font-weight:700;color:#fbbf24;margin-bottom:6px;">
+              ⚠ Children have animations not applied to the group
+            </div>
+            <div style="font-size:0.63rem;color:var(--text-muted);margin-bottom:8px;">
+              Children use: ${uniqueAnimNames}
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button id="btnInheritAnims" style="flex:1;padding:5px 8px;background:rgba(124,58,237,0.2);
+                border:1px solid rgba(124,58,237,0.4);color:#a78bfa;border-radius:6px;
+                font-size:0.68rem;font-weight:700;cursor:pointer;">
+                ↑ Apply to Group
+              </button>
+              <button id="btnKeepChildAnims" style="flex:1;padding:5px 8px;background:rgba(255,255,255,0.05);
+                border:1px solid var(--card-border);color:var(--text-secondary);border-radius:6px;
+                font-size:0.68rem;font-weight:700;cursor:pointer;">
+                Keep as is
+              </button>
+            </div>
+          </div>`;
+      }
+
       fields += `
         <button id="btnUngroupLayer" style="width:100%;padding:0.45rem;margin-bottom:0.75rem;
-          background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);
+          background:rgba(124,58,237,0.12);color:#a78bfa;border:1px solid rgba(124,58,237,0.25);
           border-radius:6px;font-weight:700;font-size:0.72rem;cursor:pointer;">
           ⬡ Ungroup (Ctrl+Shift+G)
         </button>`;
@@ -2283,7 +2358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Animation configuration values
     container.querySelectorAll('.anim-change').forEach(input => {
-      input.addEventListener('change', () => {
+      const handler = () => {
         const animId = input.dataset.animId;
         const fallbackIndex = parseInt(input.dataset.index);
         const anim = animId
@@ -2292,10 +2367,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!anim) return;
         const prop = input.dataset.prop;
         anim[prop] = parseInt(input.value);
+        bustAnimCache(layer.id, anim);
         saveState();
         renderTimeline();
         previewTimelineAtTime();
-      });
+      };
+      input.addEventListener('input', handler);
+      input.addEventListener('change', handler);
     });
 
     container.querySelectorAll('.anim-change-select').forEach(select => {
@@ -2308,6 +2386,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!anim) return;
         const prop = select.dataset.prop;
         anim[prop] = select.value;
+        bustAnimCache(layer.id, anim);
         saveState();
         renderTimeline();
         previewTimelineAtTime();
@@ -2324,6 +2403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!anim) return;
         const prop = cb.dataset.prop;
         anim[prop] = cb.checked;
+        bustAnimCache(layer.id, anim);
         saveState();
         renderTimeline();
         previewTimelineAtTime();
@@ -2349,6 +2429,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ungroup button
     container.querySelector('#btnUngroupLayer')?.addEventListener('click', () => {
       ungroupLayer(layer.id);
+    });
+
+    // Inherit child animations onto the group
+    container.querySelector('#btnInheritAnims')?.addEventListener('click', () => {
+      const childAnims = (layer.children || []).flatMap(c =>
+        (c.animations || []).map(a => ({
+          ...JSON.parse(JSON.stringify(a)),
+          id: 'anim_' + Date.now() + Math.random()
+        }))
+      );
+      // Place each after the previous
+      let cursor = 0;
+      layer.animations = childAnims.map(a => {
+        const placed = { ...a, start: cursor };
+        cursor += a.duration;
+        return placed;
+      });
+      saveState();
+      renderAll();
+      showToast(`Applied ${childAnims.length} animation(s) to group`);
+    });
+
+    container.querySelector('#btnKeepChildAnims')?.addEventListener('click', () => {
+      // Just dismiss the warning — mark group as acknowledged
+      layer._animsAcknowledged = true;
+      saveState();
+      renderPropertyPanel();
     });
 
     // Keyframe: Add keyframe to animation
@@ -2381,7 +2488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Keyframe: Edit property
     container.querySelectorAll('.kf-change').forEach(input => {
-      input.addEventListener('change', () => {
+      const handler = () => {
         const animId = input.dataset.animId;
         const ki = parseInt(input.dataset.ki);
         const prop = input.dataset.prop;
@@ -2393,11 +2500,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           anim.keyframes[ki][prop] = isNaN(val) ? val : parseFloat(val);
         }
-        // Rebuild WAAPI keyframes from custom keyframes
         applyCustomKeyframes(anim);
+        bustAnimCache(layer.id, anim);
         saveState();
         previewTimelineAtTime();
-      });
+      };
+      input.addEventListener('input', handler);
+      input.addEventListener('change', handler);
     });
 
     // Keyframe: Delete keyframe
@@ -2542,6 +2651,18 @@ document.addEventListener('DOMContentLoaded', () => {
     previewTimelineAtTime();
   }
 
+  // Bust the WAAPI cache for a specific animation so it gets recreated with new keyframes/duration
+  function bustAnimCache(layerId, anim) {
+    const elNode = viewportNode && viewportNode.querySelector(`.canvas-element[data-id="${layerId}"]`);
+    if (!elNode || !elNode._animCache) return;
+    const cacheKey = anim.id || anim.name;
+    const wa = elNode._animCache[cacheKey];
+    if (wa) {
+      try { wa.cancel(); } catch(e) {}
+      delete elNode._animCache[cacheKey];
+    }
+  }
+
   // Previews animation at specific timeline location using Web Animations API
   function previewTimelineAtTime() {
     const scene = getActiveScene();
@@ -2564,12 +2685,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const inRange   = state.currentTime >= animStart && state.currentTime <= animEnd;
         const past      = state.currentTime > animEnd;
 
-        // Convert keyframes to WAAPI format once
+        // Convert keyframes to WAAPI format
         const waKeyframes = keyframes.map(({ offset, ...rest }) => ({ ...rest, offset }));
 
-        // Create (or reuse) a long-lived WAAPI animation for this anim slot
+        // Fingerprint covers everything that affects the WAAPI animation object
+        const fingerprint = `${anim.duration}|${anim.easing}|${anim._compiledKeyframes ? JSON.stringify(anim._compiledKeyframes) : anim.name}`;
+
+        // Bust cache if fingerprint changed (duration, easing, or keyframes were edited)
         let wa = elNode._animCache[cacheKey];
-        if (!wa || wa.playState === 'idle' || wa.effect === null) {
+        const stale = !wa || wa.playState === 'idle' || wa.effect === null
+                      || elNode._animCache[cacheKey + '_fp'] !== fingerprint;
+        if (stale) {
+          if (wa) { try { wa.cancel(); } catch(e) {} }
           try {
             wa = elNode.animate(waKeyframes, {
               duration: anim.duration,
@@ -2578,18 +2705,16 @@ document.addEventListener('DOMContentLoaded', () => {
               iterations: 1,
             });
             wa.pause();
-            elNode._animCache[cacheKey] = wa;
+            elNode._animCache[cacheKey]        = wa;
+            elNode._animCache[cacheKey + '_fp'] = fingerprint;
           } catch(e) { return; }
         }
 
         if (inRange) {
-          // Seek animation to current position within this anim's window
           wa.currentTime = state.currentTime - animStart;
         } else if (past) {
-          // Hold at end frame
           wa.currentTime = anim.duration;
         } else {
-          // Before start: hold at first frame (invisible/off-screen)
           wa.currentTime = 0;
         }
       });
