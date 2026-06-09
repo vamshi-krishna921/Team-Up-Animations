@@ -513,6 +513,29 @@ document.addEventListener('DOMContentLoaded', () => {
     state.historyIndex = state.history.length - 1;
   }
 
+  // Recompile _lkfCompiled for every layer after a state restore (undo/redo/load)
+  function recompileAllLayerKeyframes() {
+    state.scenes.forEach(scene => {
+      scene.layers.forEach(layer => {
+        if (layer.layerKeyframes && layer.layerKeyframes.length >= 2) {
+          applyLayerKeyframeAnimation(layer);
+        } else {
+          layer._lkfCompiled = null;
+        }
+        // Recurse into groups
+        if (layer.children) {
+          layer.children.forEach(child => {
+            if (child.layerKeyframes && child.layerKeyframes.length >= 2) {
+              applyLayerKeyframeAnimation(child);
+            } else {
+              child._lkfCompiled = null;
+            }
+          });
+        }
+      });
+    });
+  }
+
   function undo() {
     if (state.historyIndex > 0) {
       state.historyIndex--;
@@ -520,6 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.scenes = snapshot.scenes;
       state.currentSceneId = snapshot.currentSceneId;
       state.selectedLayerId = snapshot.selectedLayerId;
+      recompileAllLayerKeyframes();
       renderAll();
       showToast("Undo");
     }
@@ -532,6 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.scenes = snapshot.scenes;
       state.currentSceneId = snapshot.currentSceneId;
       state.selectedLayerId = snapshot.selectedLayerId;
+      recompileAllLayerKeyframes();
       renderAll();
       showToast("Redo");
     }
@@ -2230,74 +2255,128 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>`;
     }
 
-    // Animation assignments + Keyframe editor
-    fields += `
-      <div class="inspector-sec-title" style="margin-top:1rem;">Layer Animations</div>
-      <div id="inspectorAnimsList">
-    `;
+    // ─────────────────────────────────────────────────────────────
+    // KEYFRAME EDITOR — replaces "Layer Animations" section
+    // Works for every element by default, no preset required.
+    // ─────────────────────────────────────────────────────────────
 
+    // Ensure layer has a layerKeyframes store (independent of preset animations)
+    if (!layer.layerKeyframes) layer.layerKeyframes = [];
+
+    const lkfs = layer.layerKeyframes;
+    const curTimeSec = parseFloat((state.currentTime / 1000).toFixed(3));
+
+    // Find if a keyframe already exists at current time (within 20ms tolerance)
+    const kfAtCurrent = lkfs.find(k => Math.abs(k.time - curTimeSec) < 0.02);
+    const kfAtCurrentIdx = lkfs.findIndex(k => Math.abs(k.time - curTimeSec) < 0.02);
+
+    // Sort keyframes by time for prev/next navigation
+    const sortedKfTimes = [...lkfs].sort((a,b)=>a.time-b.time).map(k=>k.time);
+    const prevKfTime = sortedKfTimes.filter(t => t < curTimeSec - 0.01).pop();
+    const nextKfTime = sortedKfTimes.find(t => t > curTimeSec + 0.01);
+
+    // Build the keyframe list HTML — all properties are editable inputs
+    const KFE_PROPS = [
+      { key:'x',            label:'pos x',       type:'number', step:'1'   },
+      { key:'y',            label:'pos y',       type:'number', step:'1'   },
+      { key:'width',        label:'width',       type:'number', step:'1'   },
+      { key:'height',       label:'height',      type:'number', step:'1'   },
+      { key:'rotation',     label:'rotation°',   type:'number', step:'1'   },
+      { key:'scaleX',       label:'scale x',     type:'number', step:'0.01' },
+      { key:'scaleY',       label:'scale y',     type:'number', step:'0.01' },
+      { key:'opacity',      label:'opacity',     type:'number', step:'0.01', min:'0', max:'1' },
+      { key:'blur',         label:'blur px',     type:'number', step:'1', min:'0'   },
+      { key:'borderRadius', label:'radius',      type:'number', step:'1'   },
+      { key:'fill',         label:'fill',        type:'text'   },
+      { key:'stroke',       label:'stroke',      type:'text'   },
+      { key:'strokeWidth',  label:'strk w',      type:'number', step:'1', min:'0'   },
+      { key:'color',        label:'txt color',   type:'text'   },
+      { key:'fontSize',     label:'font sz',     type:'number', step:'1', min:'1'   },
+      { key:'letterSpacing',label:'ltr spc',     type:'number', step:'0.1' },
+      { key:'lineHeight',   label:'ln height',   type:'number', step:'0.1', min:'0.5' },
+    ];
+
+    let kfListHTML = '';
+    const sortedKfs = [...lkfs].sort((a,b)=>a.time-b.time);
+    sortedKfs.forEach((kf, idx) => {
+      const isActive = Math.abs(kf.time - curTimeSec) < 0.02;
+      const inputBg = isActive ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.04)';
+      const inputBorder = isActive ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.1)';
+
+      // Build editable input grid for all animatable properties
+      const propInputs = KFE_PROPS.map(p => {
+        const val = kf[p.key] !== undefined ? kf[p.key] : '';
+        const minAttr = p.min !== undefined ? `min="${p.min}"` : '';
+        const maxAttr = p.max !== undefined ? `max="${p.max}"` : '';
+        return `<div style="display:flex;flex-direction:column;gap:1px;min-width:0;">
+          <label style="font-size:0.52rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.label}</label>
+          <input type="${p.type}" class="kfe-prop-input property-input"
+            data-kf-time="${kf.time}" data-prop="${p.key}"
+            ${minAttr} ${maxAttr} step="${p.step||'1'}"
+            value="${val}"
+            placeholder="—"
+            style="width:100%;font-size:0.6rem;padding:2px 4px;
+              background:${inputBg};border:1px solid ${inputBorder};
+              border-radius:3px;color:var(--text-light);box-sizing:border-box;"/>
+        </div>`;
+      }).join('');
+
+      kfListHTML += `
+        <div class="kfe-kf-row${isActive?' kfe-kf-active':''}" data-kf-time="${kf.time}" style="
+          background:${isActive?'rgba(124,58,237,0.08)':'rgba(255,255,255,0.02)'};
+          border:1px solid ${isActive?'rgba(124,58,237,0.35)':'rgba(255,255,255,0.07)'};
+          border-radius:6px;padding:0.4rem 0.5rem;margin-bottom:0.4rem;transition:all 0.15s;">
+          <!-- Header row: time + easing + delete -->
+          <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.35rem;cursor:pointer;" class="kfe-kf-header">
+            <span style="font-size:0.68rem;font-weight:800;color:${isActive?'#a78bfa':'var(--text-secondary)'};min-width:36px;">${kf.time.toFixed(2)}s</span>
+            <select class="kfe-easing-sel property-input" data-kf-time="${kf.time}" title="Easing out of this keyframe"
+              style="font-size:0.58rem;padding:2px 4px;flex:1;min-width:0;
+                background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);border-radius:4px;color:var(--text-light);">
+              <option value="linear" ${(kf.easing||'linear')==='linear'?'selected':''}>Linear</option>
+              <option value="ease" ${kf.easing==='ease'?'selected':''}>Ease</option>
+              <option value="ease-in" ${kf.easing==='ease-in'?'selected':''}>Ease In</option>
+              <option value="ease-out" ${kf.easing==='ease-out'?'selected':''}>Ease Out</option>
+              <option value="ease-in-out" ${kf.easing==='ease-in-out'?'selected':''}>Ease In-Out</option>
+              <option value="cubic-bezier(0.34,1.56,0.64,1)" ${kf.easing==='cubic-bezier(0.34,1.56,0.64,1)'?'selected':''}>Bounce</option>
+              <option value="cubic-bezier(0.22,1,0.36,1)" ${kf.easing==='cubic-bezier(0.22,1,0.36,1)'?'selected':''}>Elastic</option>
+            </select>
+            <button class="kfe-del-kf-btn" data-kf-time="${kf.time}"
+              style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;padding:2px 4px;
+                border-radius:3px;flex-shrink:0;line-height:1;" title="Delete keyframe">✕</button>
+          </div>
+          <!-- Editable property grid -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;">
+            ${propInputs}
+          </div>
+        </div>`;
+    });
+
+    // Preset animations section (existing behavior preserved)
+    let presetAnimsHTML = '';
     if (layer.animations.length === 0) {
-      fields += `<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.5rem;">No animations. Drag from Catalog or use Keyframes below.</div>`;
+      presetAnimsHTML = `<div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:0.3rem;">No preset animations. Drag from Catalog to add.</div>`;
     } else {
       layer.animations.forEach((anim, i) => {
         const animId = anim.id || i;
-        const kfs = anim.keyframes || [];
-
-        // Build keyframe rows HTML
-        let kfRowsHTML = '';
-        kfs.forEach((kf, ki) => {
-          kfRowsHTML += `
-            <div style="display:grid;grid-template-columns:34px repeat(8,1fr) 20px;gap:3px;align-items:center;
-              background:rgba(255,255,255,0.03);border-radius:4px;padding:3px 4px;margin-bottom:3px;">
-              <span style="font-size:0.60rem;color:#a78bfa;font-weight:700;text-align:center;">${Math.round(kf.offset*100)}%</span>
-              <input type="number" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="opacity"
-                placeholder="α" min="0" max="1" step="0.1" value="${kf.opacity ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="Opacity (0–1)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateY"
-                placeholder="Y" value="${kf.translateY ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="translateY (px)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="translateX"
-                placeholder="X" value="${kf.translateX ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="translateX (px)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="scale"
-                placeholder="sc" value="${kf.scale ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="scale (e.g. 0.8 or 1.2)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="rotate"
-                placeholder="rot" value="${kf.rotate ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="rotate (degrees, e.g. 45)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="width"
-                placeholder="W%" value="${kf.width ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="width (%, px or auto — e.g. 50% or 200px)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="height"
-                placeholder="H%" value="${kf.height ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="height (%, px or auto — e.g. 50% or 200px)"/>
-              <input type="text" class="property-input kf-change" data-anim-id="${animId}" data-ki="${ki}" data-prop="zoom"
-                placeholder="zm" value="${kf.zoom ?? ''}"
-                style="font-size:0.60rem;padding:2px 3px;" title="zoom (e.g. 0 = invisible, 1 = normal, 1.5 = 150%)"/>
-              <button class="kf-del-btn" data-anim-id="${animId}" data-ki="${ki}"
-                style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0;line-height:1;">✕</button>
-            </div>`;
-        });
-
-        fields += `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:6px; padding:0.5rem; margin-bottom:0.5rem;">
-            <div style="display:flex; align-items:center; margin-bottom:0.4rem; gap:4px;">
-              <span style="font-size:0.72rem; font-weight:700; color:#a78bfa; flex:1;">${anim.name}</span>
+        presetAnimsHTML += `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:6px;padding:0.45rem 0.5rem;margin-bottom:0.35rem;">
+            <div style="display:flex;align-items:center;gap:4px;margin-bottom:0.3rem;">
+              <span style="font-size:0.7rem;font-weight:700;color:#a78bfa;flex:1;">${anim.name}</span>
               <button class="layer-btn btn-del-anim" data-anim-id="${animId}" data-index="${i}">🗑</button>
             </div>
-            <div class="property-row-split" style="margin-bottom:0.25rem;">
+            <div class="property-row-split" style="margin-bottom:0.2rem;">
               <div>
-                <label class="property-lbl" style="font-size:0.62rem;">Start (ms)</label>
+                <label class="property-lbl" style="font-size:0.6rem;">Start (ms)</label>
                 <input type="number" class="property-input anim-change" data-anim-id="${animId}" data-index="${i}" data-prop="start" value="${anim.start}"/>
               </div>
               <div>
-                <label class="property-lbl" style="font-size:0.62rem;">Duration (ms)</label>
+                <label class="property-lbl" style="font-size:0.6rem;">Duration (ms)</label>
                 <input type="number" class="property-input anim-change" data-anim-id="${animId}" data-index="${i}" data-prop="duration" value="${anim.duration}"/>
               </div>
             </div>
-            <div class="property-row-split" style="margin-bottom:0.25rem;">
+            <div class="property-row-split" style="margin-bottom:0.2rem;">
               <div>
-                <label class="property-lbl" style="font-size:0.62rem;">Easing</label>
+                <label class="property-lbl" style="font-size:0.6rem;">Easing</label>
                 <select class="property-input anim-change-select" data-anim-id="${animId}" data-index="${i}" data-prop="easing">
                   <option value="cubic-bezier(0.22,1,0.36,1)" ${anim.easing==='cubic-bezier(0.22,1,0.36,1)'?'selected':''}>Ease Out Expo</option>
                   <option value="linear" ${anim.easing==='linear'?'selected':''}>Linear</option>
@@ -2310,7 +2389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </select>
               </div>
               <div>
-                <label class="property-lbl" style="font-size:0.62rem;">Direction</label>
+                <label class="property-lbl" style="font-size:0.6rem;">Direction</label>
                 <select class="property-input anim-change-select" data-anim-id="${animId}" data-index="${i}" data-prop="direction">
                   <option value="normal" ${anim.direction==='normal'?'selected':''}>Normal</option>
                   <option value="reverse" ${anim.direction==='reverse'?'selected':''}>Reverse</option>
@@ -2319,43 +2398,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 </select>
               </div>
             </div>
-            <div style="margin-top:0.25rem; display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
               <input type="checkbox" class="anim-change-checkbox" id="anim-repeat-${animId}" data-anim-id="${animId}" data-index="${i}" data-prop="infinite" ${anim.infinite?'checked':''}/>
-              <label for="anim-repeat-${animId}" class="property-lbl" style="font-size:0.62rem; cursor:pointer;">Repeat Infinite (∞)</label>
+              <label for="anim-repeat-${animId}" class="property-lbl" style="font-size:0.6rem;cursor:pointer;">Repeat ∞</label>
             </div>
-
-            <!-- Keyframe Editor -->
-            <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:0.4rem;">
-              <div style="display:flex;align-items:center;margin-bottom:0.35rem;gap:6px;">
-                <span style="font-size:0.63rem;font-weight:700;color:var(--text-muted);flex:1;text-transform:uppercase;letter-spacing:0.5px;">Keyframes</span>
-                <button class="btn-add-kf" data-anim-id="${animId}"
-                  style="font-size:0.62rem;padding:2px 8px;background:rgba(124,58,237,0.2);
-                  border:1px solid rgba(124,58,237,0.35);color:#a78bfa;border-radius:4px;cursor:pointer;font-weight:600;">
-                  + Add
-                </button>
-              </div>
-              ${kfs.length > 0 ? `
-                <div style="display:grid;grid-template-columns:34px repeat(8,1fr) 20px;gap:3px;margin-bottom:3px;padding:0 4px;">
-                  <span style="font-size:0.57rem;color:var(--text-muted);text-align:center;">%</span>
-                  <span style="font-size:0.57rem;color:var(--text-muted);">Opacity</span>
-                  <span style="font-size:0.57rem;color:var(--text-muted);">Y px</span>
-                  <span style="font-size:0.57rem;color:var(--text-muted);">X px</span>
-                  <span style="font-size:0.57rem;color:var(--text-muted);">Scale</span>
-                  <span style="font-size:0.57rem;color:var(--text-muted);">Rot°</span>
-                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Width</span>
-                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Height</span>
-                  <span style="font-size:0.57rem;color:#7c3aed;font-weight:600;">Zoom</span>
-                  <span></span>
-                </div>
-                ${kfRowsHTML}
-              ` : `<div style="font-size:0.63rem;color:var(--text-muted);font-style:italic;">No custom keyframes. Click + Add to create one.</div>`}
-            </div>
-          </div>
-        `;
+          </div>`;
       });
     }
 
-    fields += `</div>`;
+    fields += `
+      <!-- ═══ KEYFRAME EDITOR ═══ -->
+      <div style="margin-top:1rem;">
+        <div class="inspector-sec-title" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 5.5H15l-4.7 3.4 1.8 5.5L8 12l-4.1 3.4 1.8-5.5L1 6.5h5.2z" fill="#a78bfa"/></svg>
+          Keyframe Editor
+        </div>
+
+        <!-- Current Time + Navigation Controls -->
+        <div style="background:rgba(124,58,237,0.07);border:1px solid rgba(124,58,237,0.18);border-radius:8px;padding:0.5rem 0.6rem;margin-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.35rem;margin-bottom:0.4rem;">
+            <span style="font-size:0.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;flex:1;">Current Time</span>
+            <span id="kfeCurrentTimeDisplay" style="font-size:0.78rem;font-weight:800;color:${kfAtCurrent?'#a78bfa':'var(--text-secondary)'};
+              background:rgba(0,0,0,0.2);border-radius:4px;padding:2px 7px;min-width:40px;text-align:center;">
+              ${curTimeSec.toFixed(2)}s
+            </span>
+            ${kfAtCurrent ? `<span style="font-size:0.58rem;background:rgba(124,58,237,0.25);border:1px solid rgba(124,58,237,0.4);color:#c4b5fd;border-radius:10px;padding:1px 6px;font-weight:700;">● KF</span>` : ''}
+          </div>
+          <div style="display:flex;gap:0.3rem;">
+            <button id="kfeBtnPrev" title="Previous Keyframe"
+              style="flex:1;padding:0.3rem;font-size:0.68rem;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);
+              color:${prevKfTime!==undefined?'var(--text-secondary)':'var(--text-muted)'};border-radius:5px;cursor:pointer;font-weight:600;transition:all 0.15s;"
+              ${prevKfTime===undefined?'disabled':''}>◀ Prev</button>
+            <button id="kfeBtnAdd" title="Add Keyframe at Current Time"
+              style="flex:1.4;padding:0.3rem;font-size:0.68rem;
+              background:${kfAtCurrent?'rgba(124,58,237,0.3)':'rgba(124,58,237,0.15)'};
+              border:1px solid rgba(124,58,237,${kfAtCurrent?'0.6':'0.35'});
+              color:#a78bfa;border-radius:5px;cursor:pointer;font-weight:700;transition:all 0.15s;">
+              ${kfAtCurrent?'✎ Update':'+ Add KF'}
+            </button>
+            <button id="kfeBtnNext" title="Next Keyframe"
+              style="flex:1;padding:0.3rem;font-size:0.68rem;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);
+              color:${nextKfTime!==undefined?'var(--text-secondary)':'var(--text-muted)'};border-radius:5px;cursor:pointer;font-weight:600;transition:all 0.15s;"
+              ${nextKfTime===undefined?'disabled':''}>Next ▶</button>
+            <button id="kfeBtnDel" title="Delete Keyframe at Current Time"
+              style="padding:0.3rem 0.45rem;font-size:0.68rem;background:${kfAtCurrent?'rgba(239,68,68,0.12)':'rgba(255,255,255,0.03)'};
+              border:1px solid ${kfAtCurrent?'rgba(239,68,68,0.3)':'var(--card-border)'};
+              color:${kfAtCurrent?'#f87171':'var(--text-muted)'};border-radius:5px;cursor:pointer;transition:all 0.15s;"
+              ${!kfAtCurrent?'disabled':''}>🗑</button>
+          </div>
+        </div>
+
+        <!-- Keyframe List -->
+        <div style="margin-bottom:0.5rem;">
+          <div style="font-size:0.6rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.3rem;">
+            <span>Keyframes (${lkfs.length})</span>
+            ${lkfs.length>0?`<button id="kfeBtnClearAll"
+              style="margin-left:auto;font-size:0.57rem;padding:1px 6px;background:rgba(239,68,68,0.08);
+              border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:4px;cursor:pointer;">Clear All</button>`:''}
+          </div>
+          <div id="kfeKeyframeList" style="max-height:180px;overflow-y:auto;">
+            ${lkfs.length === 0
+              ? `<div style="font-size:0.65rem;color:var(--text-muted);font-style:italic;padding:0.4rem 0;text-align:center;">
+                  No keyframes yet.<br>Move playhead &amp; click <b style="color:#a78bfa;">+ Add KF</b>
+                </div>`
+              : kfListHTML}
+          </div>
+        </div>
+
+        <!-- Preset Animations (existing catalog behavior preserved) -->
+        <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:0.5rem;margin-top:0.25rem;">
+          <div style="font-size:0.6rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem;">
+            Preset Animations
+          </div>
+          <div id="inspectorAnimsList">
+            ${presetAnimsHTML}
+          </div>
+        </div>
+      </div>
+    `;
+
+    fields += ``;
     container.innerHTML = fields;
 
     // Attach listeners - input for live updates, change for undo history
@@ -2610,69 +2732,264 @@ document.addEventListener('DOMContentLoaded', () => {
       renderPropertyPanel();
     });
 
-    // Keyframe: Add keyframe to animation
-    container.querySelectorAll('.btn-add-kf').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const animId = btn.dataset.animId;
-        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
-        if (!anim) return;
-        if (!anim.keyframes) anim.keyframes = [];
-        // Auto-pick a sensible offset: 0 if empty, 1 if one exists, else midpoint
-        const existing = anim.keyframes.map(k => k.offset);
-        let nextOffset = 0;
-        if (existing.includes(0) && !existing.includes(1)) nextOffset = 1;
-        else if (existing.length > 0) {
-          // Find the largest gap
-          const sorted = [...new Set([...existing, 0, 1])].sort((a, b) => a - b);
-          let maxGap = 0;
-          for (let gi = 0; gi < sorted.length - 1; gi++) {
-            const gap = sorted[gi + 1] - sorted[gi];
-            if (gap > maxGap) { maxGap = gap; nextOffset = Math.round((sorted[gi] + sorted[gi+1]) / 2 * 100) / 100; }
-          }
+    // ─── KFE: Add / Update keyframe at current playhead time ───
+    container.querySelector('#kfeBtnAdd')?.addEventListener('click', () => {
+      if (!layer.layerKeyframes) layer.layerKeyframes = [];
+      const t = parseFloat((state.currentTime / 1000).toFixed(3));
+
+      // ── Read the LIVE rendered values from the DOM element so that what
+      // the user sees is exactly what gets stored, even during playback.
+      const elNode = viewportNode && viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"]`);
+      const liveStyle = elNode ? window.getComputedStyle(elNode) : null;
+
+      // Helper: parse a computed style number, falling back to a layer prop
+      const liveNum = (cssProp, layerProp, fallback = 0) => {
+        if (liveStyle) {
+          const v = parseFloat(liveStyle.getPropertyValue(cssProp));
+          if (!isNaN(v)) return v;
         }
-        anim.keyframes.push({ offset: nextOffset, opacity: nextOffset === 0 ? 0 : 1 });
-        anim.keyframes.sort((a, b) => a.offset - b.offset);
-        saveState();
-        renderPropertyPanel();
+        return layer[layerProp] != null ? layer[layerProp] : fallback;
+      };
+
+      // Parse transform matrix for translate / scale / rotate
+      let liveX = layer.x, liveY = layer.y;
+      let liveScaleX = layer.scaleX != null ? layer.scaleX : 1;
+      let liveScaleY = layer.scaleY != null ? layer.scaleY : 1;
+      let liveRotation = layer.rotation || 0;
+      if (liveStyle) {
+        const mat = new DOMMatrix(liveStyle.transform);
+        if (mat && !isNaN(mat.m41)) {
+          // mat.m41/m42 = translation; decompose scale & rotate from the 2×2
+          const a = mat.a, b = mat.b, c = mat.c, d = mat.d;
+          const sx = Math.sqrt(a*a + b*b);
+          const sy = Math.sqrt(c*c + d*d);
+          // translate is relative offset from WAAPI; add base position
+          liveX = layer.x + mat.m41;
+          liveY = layer.y + mat.m42;
+          if (sx > 0.001) { liveScaleX = sx; liveScaleY = sy; }
+          liveRotation = Math.round(Math.atan2(b, a) * 180 / Math.PI);
+        }
+      }
+
+      // Width / height: WAAPI can animate these directly on the element
+      const liveWidth  = liveNum('width',  'width',  layer.width);
+      const liveHeight = liveNum('height', 'height', layer.height);
+
+      // Opacity
+      const liveOpacity = liveNum('opacity', 'opacity', 1);
+
+      // Blur from filter: blur(Npx)
+      let liveBlur = layer.blur != null ? layer.blur : 0;
+      if (liveStyle) {
+        const filterStr = liveStyle.filter || liveStyle.webkitFilter || '';
+        const bm = filterStr.match(/blur\(([\d.]+)px\)/);
+        if (bm) liveBlur = parseFloat(bm[1]);
+      }
+
+      // Border radius
+      let liveBorderRadius = layer.radius != null ? layer.radius : 0;
+      if (liveStyle) {
+        const br = parseFloat(liveStyle.borderRadius);
+        if (!isNaN(br)) liveBorderRadius = br;
+      }
+
+      const snapshot = {
+        time:         t,
+        easing:       'linear',
+        x:            Math.round(liveX),
+        y:            Math.round(liveY),
+        width:        Math.round(liveWidth),
+        height:       Math.round(liveHeight),
+        rotation:     liveRotation,
+        scaleX:       parseFloat(liveScaleX.toFixed(4)),
+        scaleY:       parseFloat(liveScaleY.toFixed(4)),
+        opacity:      parseFloat(liveOpacity.toFixed(4)),
+        blur:         liveBlur,
+        borderRadius: liveBorderRadius,
+      };
+
+      // Colour / text properties — read live from child element when possible
+      const shapeEl  = elNode && elNode.querySelector('.element-shape');
+      const textEl   = elNode && elNode.querySelector('.element-text');
+
+      if (layer.fill !== undefined || shapeEl) {
+        const liveFill = shapeEl
+          ? (window.getComputedStyle(shapeEl).background || layer.fill)
+          : layer.fill;
+        snapshot.fill = liveFill || layer.fill;
+      }
+      if (layer.stroke      !== undefined) snapshot.stroke      = layer.stroke;
+      if (layer.strokeWidth !== undefined) snapshot.strokeWidth  = layer.strokeWidth;
+      if (layer.color !== undefined || textEl) {
+        snapshot.color = textEl
+          ? (window.getComputedStyle(textEl).color || layer.color)
+          : layer.color;
+      }
+      if (layer.fontSize      !== undefined) snapshot.fontSize      = layer.fontSize;
+      if (layer.letterSpacing !== undefined) {
+        snapshot.letterSpacing = parseFloat(layer.letterSpacing) || 0;
+      }
+      if (layer.lineHeight !== undefined) {
+        snapshot.lineHeight = parseFloat(layer.lineHeight) || 1;
+      }
+
+      const existing = layer.layerKeyframes.findIndex(k => Math.abs(k.time - t) < 0.02);
+      if (existing >= 0) {
+        // Update: merge new values in, preserve easing
+        const prevEasing = layer.layerKeyframes[existing].easing;
+        layer.layerKeyframes[existing] = { ...snapshot, easing: prevEasing };
+      } else {
+        layer.layerKeyframes.push(snapshot);
+        layer.layerKeyframes.sort((a,b)=>a.time-b.time);
+      }
+
+      // Extend timeline duration if keyframe is beyond current duration
+      if (t * 1000 > state.duration - 100) {
+        state.duration = Math.max(state.duration, Math.ceil(t + 1) * 1000);
+      }
+
+      applyLayerKeyframeAnimation(layer);
+      saveState();
+      renderTimeline();
+      renderPropertyPanel();
+      showToast(`Keyframe at ${t.toFixed(2)}s ${existing>=0?'updated':'added'}`);
+    });
+
+    // ─── KFE: Prev keyframe navigation ───
+    container.querySelector('#kfeBtnPrev')?.addEventListener('click', () => {
+      if (!layer.layerKeyframes) return;
+      const t = state.currentTime / 1000;
+      const prev = [...layer.layerKeyframes].sort((a,b)=>a.time-b.time)
+        .filter(k => k.time < t - 0.01).pop();
+      if (prev != null) {
+        state.currentTime = prev.time * 1000;
+        updatePlayheadPosition();
         previewTimelineAtTime();
+        renderPropertyPanel();
+      }
+    });
+
+    // ─── KFE: Next keyframe navigation ───
+    container.querySelector('#kfeBtnNext')?.addEventListener('click', () => {
+      if (!layer.layerKeyframes) return;
+      const t = state.currentTime / 1000;
+      const next = [...layer.layerKeyframes].sort((a,b)=>a.time-b.time)
+        .find(k => k.time > t + 0.01);
+      if (next != null) {
+        state.currentTime = next.time * 1000;
+        updatePlayheadPosition();
+        previewTimelineAtTime();
+        renderPropertyPanel();
+      }
+    });
+
+    // ─── KFE: Delete keyframe at current time ───
+    container.querySelector('#kfeBtnDel')?.addEventListener('click', () => {
+      if (!layer.layerKeyframes) return;
+      const t = state.currentTime / 1000;
+      const idx = layer.layerKeyframes.findIndex(k => Math.abs(k.time - t) < 0.02);
+      if (idx >= 0) {
+        layer.layerKeyframes.splice(idx, 1);
+        applyLayerKeyframeAnimation(layer);
+        saveState();
+        renderTimeline();
+        renderPropertyPanel();
+        showToast('Keyframe deleted');
+      }
+    });
+
+    // ─── KFE: Clear all keyframes ───
+    container.querySelector('#kfeBtnClearAll')?.addEventListener('click', () => {
+      layer.layerKeyframes = [];
+      applyLayerKeyframeAnimation(layer);
+      saveState();
+      renderTimeline();
+      renderPropertyPanel();
+      showToast('All keyframes cleared');
+    });
+
+    // ─── KFE: Click keyframe in list → jump playhead ───
+    // ─── KFE: Delete individual keyframe from list ───
+    container.querySelectorAll('.kfe-del-kf-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const t = parseFloat(btn.dataset.kfTime);
+        if (!layer.layerKeyframes) return;
+        const idx = layer.layerKeyframes.findIndex(k => Math.abs(k.time - t) < 0.02);
+        if (idx >= 0) {
+          layer.layerKeyframes.splice(idx, 1);
+          applyLayerKeyframeAnimation(layer);
+          saveState();
+          renderTimeline();
+          renderPropertyPanel();
+        }
       });
     });
 
-    // Keyframe: Edit property
-    container.querySelectorAll('.kf-change').forEach(input => {
-      const handler = () => {
-        const animId = input.dataset.animId;
-        const ki = parseInt(input.dataset.ki);
-        const prop = input.dataset.prop;
-        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
-        if (!anim || !anim.keyframes || !anim.keyframes[ki]) return;
-        const val = input.value.trim();
-        if (val === '') {
-          delete anim.keyframes[ki][prop];
-        } else {
-          anim.keyframes[ki][prop] = isNaN(val) ? val : parseFloat(val);
+    // ─── KFE: Easing selector per keyframe ───
+    container.querySelectorAll('.kfe-easing-sel').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const t = parseFloat(sel.dataset.kfTime);
+        if (!layer.layerKeyframes) return;
+        const kf = layer.layerKeyframes.find(k => Math.abs(k.time - t) < 0.02);
+        if (kf) {
+          kf.easing = sel.value;
+          applyLayerKeyframeAnimation(layer);
+          saveState();
+          previewTimelineAtTime();
         }
-        applyCustomKeyframes(anim);
-        bustAnimCache(layer.id, anim);
+      });
+    });
+
+    // ─── KFE: Edit individual property values directly in the keyframe list ───
+    container.querySelectorAll('.kfe-prop-input').forEach(input => {
+      const handler = () => {
+        const t = parseFloat(input.dataset.kfTime);
+        const prop = input.dataset.prop;
+        if (!layer.layerKeyframes) return;
+        const kf = layer.layerKeyframes.find(k => Math.abs(k.time - t) < 0.02);
+        if (!kf) return;
+
+        const raw = input.value.trim();
+        if (raw === '' || raw === '—') {
+          // Empty field → remove property from keyframe (leave unset = not animated)
+          delete kf[prop];
+        } else {
+          // Numeric props stored as numbers; text props (color, fill, shadow) stored as strings
+          const numericProps = ['x','y','width','height','rotation','opacity','scaleX','scaleY','borderRadius','blur','strokeWidth','fontSize','letterSpacing','lineHeight'];
+          if (numericProps.includes(prop)) {
+            const n = parseFloat(raw);
+            if (!isNaN(n)) kf[prop] = n;
+          } else {
+            kf[prop] = raw;
+          }
+        }
+
+        applyLayerKeyframeAnimation(layer);
         saveState();
         previewTimelineAtTime();
       };
+
       input.addEventListener('input', handler);
       input.addEventListener('change', handler);
+
+      // Stop row-click from firing when editing an input
+      input.addEventListener('click', e => e.stopPropagation());
+      input.addEventListener('mousedown', e => e.stopPropagation());
     });
 
-    // Keyframe: Delete keyframe
-    container.querySelectorAll('.kf-del-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const animId = btn.dataset.animId;
-        const ki = parseInt(btn.dataset.ki);
-        const anim = layer.animations.find(a => (a.id || '') === animId) || layer.animations[parseInt(animId)];
-        if (!anim || !anim.keyframes) return;
-        anim.keyframes.splice(ki, 1);
-        applyCustomKeyframes(anim);
-        saveState();
-        renderPropertyPanel();
+    // ─── KFE: Click header row → jump playhead (not when interacting with inputs/selects) ───
+    container.querySelectorAll('.kfe-kf-header').forEach(header => {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('.kfe-del-kf-btn') || e.target.closest('.kfe-easing-sel')) return;
+        const row = header.closest('.kfe-kf-row');
+        if (!row) return;
+        const t = parseFloat(row.dataset.kfTime);
+        state.currentTime = t * 1000;
+        updatePlayheadPosition();
         previewTimelineAtTime();
+        renderPropertyPanel();
       });
     });
   }
@@ -2719,6 +3036,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Store compiled keyframes on the animation itself for the preview engine
     anim._compiledKeyframes = wapiKfs;
+  }
+
+  // ─── Compile layer-level keyframes into the _lkfCompiled store ───
+  // The new compositing engine reads layer._lkfCompiled.raw directly for
+  // JS interpolation, so we only need the sorted raw keyframes here.
+  // The WAAPI keyframes array is kept for potential future use but the
+  // playback engine no longer drives a WAAPI animation on the element.
+  function applyLayerKeyframeAnimation(layer) {
+    if (!layer.layerKeyframes || layer.layerKeyframes.length < 2) {
+      layer._lkfCompiled = null;
+      return;
+    }
+
+    const sorted = [...layer.layerKeyframes].sort((a,b) => a.time - b.time);
+    const totalDuration = sorted[sorted.length - 1].time * 1000;
+    if (totalDuration <= 0) { layer._lkfCompiled = null; return; }
+
+    layer._lkfCompiled = {
+      duration: totalDuration,
+      raw:      sorted,   // sorted raw keyframes — used by JS interpolation engine
+    };
   }
 
   // --- Timeline Editor Layout & Track Management ---
@@ -2770,6 +3108,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const onMouseUp = () => {
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
+        // Refresh KFE button states in inspector when scrub ends
+        if (state.selectedLayerId) renderPropertyPanel();
       };
 
       window.addEventListener('mousemove', onMouseMove);
@@ -2788,6 +3128,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playheadHandle) playheadHandle.style.left = `${x}px`;
     if (timelineTimeVal) {
       timelineTimeVal.textContent = `${(state.currentTime / 1000).toFixed(1)}s / ${(state.duration / 1000).toFixed(1)}s`;
+    }
+
+    // Sync inspector KFE time display without full re-render
+    const kfeDisplay = document.getElementById('kfeCurrentTimeDisplay');
+    if (kfeDisplay) {
+      const curT = state.currentTime / 1000;
+      kfeDisplay.textContent = curT.toFixed(2) + 's';
+      const layer = getActiveScene().layers.find(l => l.id === state.selectedLayerId);
+      const hasKf = layer && layer.layerKeyframes &&
+        layer.layerKeyframes.some(k => Math.abs(k.time - curT) < 0.02);
+      kfeDisplay.style.color = hasKf ? '#a78bfa' : 'var(--text-secondary)';
     }
   }
 
@@ -2842,94 +3193,408 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Previews animation at specific timeline location using Web Animations API
+  // ─────────────────────────────────────────────────────────────────────────
+  // Compositing helpers
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Smooth CSS colour interpolation via a 1×1 canvas (handles hex/rgb/rgba/named)
+  const _lerpColorCanvas = document.createElement('canvas');
+  _lerpColorCanvas.width = _lerpColorCanvas.height = 1;
+  const _lerpColorCtx = _lerpColorCanvas.getContext('2d');
+  function lerpColor(ca, cb, t) {
+    try {
+      const parseColor = (c) => {
+        _lerpColorCtx.clearRect(0,0,1,1);
+        _lerpColorCtx.fillStyle = c;
+        _lerpColorCtx.fillRect(0,0,1,1);
+        return _lerpColorCtx.getImageData(0,0,1,1).data;
+      };
+      const a = parseColor(ca), b = parseColor(cb);
+      const r  = Math.round(a[0] + (b[0]-a[0])*t);
+      const g  = Math.round(a[1] + (b[1]-a[1])*t);
+      const bv = Math.round(a[2] + (b[2]-a[2])*t);
+      const av = parseFloat((a[3]/255 + (b[3]/255 - a[3]/255)*t).toFixed(3));
+      return `rgba(${r},${g},${bv},${av})`;
+    } catch(e) { return t < 0.5 ? ca : cb; }
+  }
+
+  // Parse a CSS transform string into its numeric components.
+  // Returns { translateX, translateY, rotate, scaleX, scaleY } (all others → identity).
+  function parseTransformComponents(transformStr) {
+    const result = { translateX: 0, translateY: 0, rotate: 0, scaleX: 1, scaleY: 1 };
+    if (!transformStr || transformStr === 'none') return result;
+    // Use DOMMatrix to decompose the full matrix
+    try {
+      const m = new DOMMatrix(transformStr);
+      result.translateX = m.m41;
+      result.translateY = m.m42;
+      const sx = Math.sqrt(m.a*m.a + m.b*m.b);
+      const sy = Math.sqrt(m.c*m.c + m.d*m.d);
+      result.scaleX = sx || 1;
+      result.scaleY = sy || 1;
+      result.rotate = Math.atan2(m.b, m.a) * 180 / Math.PI;
+    } catch(e) {}
+    return result;
+  }
+
+  // Parse CSS filter string into a map of filter functions → numeric values.
+  // e.g. "blur(4px) brightness(1.2)" → { blur: 4, brightness: 1.2 }
+  function parseFilterComponents(filterStr) {
+    const result = {};
+    if (!filterStr || filterStr === 'none') return result;
+    const re = /([\w-]+)\(([^)]+)\)/g;
+    let m;
+    while ((m = re.exec(filterStr)) !== null) {
+      result[m[1]] = parseFloat(m[2]);
+    }
+    return result;
+  }
+
+  // Build a CSS filter string from a components map
+  function buildFilterString(components) {
+    const parts = [];
+    if (components.blur    != null && components.blur    > 0) parts.push(`blur(${components.blur.toFixed(2)}px)`);
+    if (components.brightness != null)  parts.push(`brightness(${components.brightness.toFixed(3)})`);
+    if (components.contrast   != null)  parts.push(`contrast(${components.contrast.toFixed(3)})`);
+    if (components.saturate   != null)  parts.push(`saturate(${components.saturate.toFixed(3)})`);
+    if (components.hue_rotate != null)  parts.push(`hue-rotate(${components['hue-rotate'] ?? components.hue_rotate}deg)`);
+    return parts.length ? parts.join(' ') : '';
+  }
+
+  // JS-interpolate a single numeric property across sorted raw keyframes at tSec.
+  function lkfInterp(rawKfs, tSec, prop, fallback) {
+    if (!rawKfs || rawKfs.length === 0) return fallback;
+    if (rawKfs.length === 1) return rawKfs[0][prop] !== undefined ? rawKfs[0][prop] : fallback;
+    const last = rawKfs[rawKfs.length - 1];
+    if (tSec >= last.time) return last[prop] !== undefined ? last[prop] : fallback;
+    const first = rawKfs[0];
+    if (tSec <= first.time) return first[prop] !== undefined ? first[prop] : fallback;
+
+    let from = first, to = last;
+    for (let i = 0; i < rawKfs.length - 1; i++) {
+      if (tSec >= rawKfs[i].time && tSec <= rawKfs[i+1].time) {
+        from = rawKfs[i]; to = rawKfs[i+1]; break;
+      }
+    }
+    const span = Math.max(0.0001, to.time - from.time);
+    const t    = Math.max(0, Math.min(1, (tSec - from.time) / span));
+    const fv   = from[prop] !== undefined ? from[prop] : fallback;
+    const tv   = to[prop]   !== undefined ? to[prop]   : fallback;
+    return fv + (tv - fv) * t;
+  }
+
+  function lkfInterpColor(rawKfs, tSec, prop, fallback) {
+    if (!rawKfs || rawKfs.length === 0) return fallback;
+    const last = rawKfs[rawKfs.length - 1];
+    if (tSec >= last.time) return last[prop] !== undefined ? last[prop] : fallback;
+    const first = rawKfs[0];
+    if (tSec <= first.time) return first[prop] !== undefined ? first[prop] : fallback;
+
+    let from = first, to = last;
+    for (let i = 0; i < rawKfs.length - 1; i++) {
+      if (tSec >= rawKfs[i].time && tSec <= rawKfs[i+1].time) {
+        from = rawKfs[i]; to = rawKfs[i+1]; break;
+      }
+    }
+    const span = Math.max(0.0001, to.time - from.time);
+    const t    = Math.max(0, Math.min(1, (tSec - from.time) / span));
+    const fv   = from[prop] !== undefined ? from[prop] : fallback;
+    const tv   = to[prop]   !== undefined ? to[prop]   : fallback;
+    return lerpColor(fv, tv, t);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // previewTimelineAtTime — composited playback engine
+  //
+  // Architecture:
+  //   Each preset animation is sampled in isolation on its OWN dedicated
+  //   off-screen element (one per unique animation fingerprint).  This
+  //   eliminates the multi-animation interference bug: previously all
+  //   animations shared one sampler node, so WAAPI would composite them
+  //   together and getComputedStyle returned the wrong blended value.
+  //
+  //   LKF keyframes are evaluated purely in JS (no WAAPI) from the raw
+  //   sorted keyframe store, using linear interpolation between adjacent
+  //   keyframes.  This makes them frame-accurate even during fast scrubbing.
+  //
+  //   Both contributions are then additively/multiplicatively composed and
+  //   written to the visible element exactly once per frame as:
+  //     • one transform string  (translate + rotate + scale)
+  //     • one opacity value     (multiplicative)
+  //     • one filter string     (blur additive, others multiplicative)
+  //   Child-element properties (text color, fill, fontSize …) are written
+  //   to their respective child nodes after the root compositing step.
+  // ─────────────────────────────────────────────────────────────────────────
   function previewTimelineAtTime() {
-    const scene = getActiveScene();
+    const scene       = getActiveScene();
     const keyframeMap = (window.v1Data && window.v1Data.animationKeyframes) || {};
 
+    // Pool of dedicated off-screen sampler nodes, keyed by animation fingerprint.
+    // Using one node per animation avoids WAAPI composite interference.
+    if (!window._samplerPool) window._samplerPool = {};
+    const pool = window._samplerPool;
+
+    function getSamplerFor(fp, waKfs, duration, easing) {
+      let entry = pool[fp];
+      if (!entry) {
+        const el = document.createElement('div');
+        el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:100px;height:100px;pointer-events:none;visibility:hidden;';
+        document.body.appendChild(el);
+        entry = { el, wa: null, fp: null };
+        pool[fp] = entry;
+      }
+      // Re-create the WAAPI animation if fingerprint changed or it died
+      if (!entry.wa || entry.wa.playState === 'idle' || entry.wa.effect === null || entry.fp !== fp) {
+        if (entry.wa) { try { entry.wa.cancel(); } catch(e) {} }
+        try {
+          entry.wa = entry.el.animate(waKfs, {
+            duration,
+            fill: 'both',
+            easing: easing || 'linear',
+            iterations: 1,
+          });
+          entry.wa.pause();
+          entry.fp = fp;
+        } catch(e) { return null; }
+      }
+      return entry;
+    }
+
     scene.layers.forEach(layer => {
-      const elNode = viewportNode ? viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"]`) : null;
+      const elNode = viewportNode
+        ? viewportNode.querySelector(`.canvas-element[data-id="${layer.id}"]`)
+        : null;
       if (!elNode) return;
 
-      // Initialize per-element animation cache
-      if (!elNode._animCache) elNode._animCache = {};
+      const baseRotation = layer.rotation || 0;
+      const baseOpacity  = layer.opacity  != null ? layer.opacity : 1;
+
+      // ── Step 1: Sample each preset animation independently ────────────
+      //
+      // preset accumulator — identity values so "no animation" == no change
+      let preset = {
+        translateX: 0, translateY: 0,
+        rotate:     0,              // delta in degrees from the animation
+        scaleX:     1, scaleY:  1,
+        // opacity delta: we accumulate as a *multiplier relative to 1.0*,
+        // not relative to layer.opacity, so we don't double-apply the base.
+        opacityMul: 1,
+        filters:    {},
+        zoom:       null,
+      };
+
+      let anyPresetActive = false;
 
       layer.animations.forEach(anim => {
-        const keyframes = anim._compiledKeyframes ||  keyframeMap[anim.name];
+        const keyframes = anim._compiledKeyframes || keyframeMap[anim.name];
         if (!keyframes || keyframes.length < 2) return;
 
-        const cacheKey = anim.id || anim.name;
         const animStart = anim.start;
         const animEnd   = anim.start + anim.duration;
         const inRange   = state.currentTime >= animStart && state.currentTime <= animEnd;
         const past      = state.currentTime > animEnd;
+        if (!inRange && !past) return;  // animation hasn't started yet
 
-        // Convert keyframes to WAAPI format
-        const waKeyframes = keyframes.map(({ offset, ...rest }) => ({ ...rest, offset }));
+        anyPresetActive = true;
+        const localTime = inRange ? (state.currentTime - animStart) : anim.duration;
+        const waKfs     = keyframes.map(({ offset, ...rest }) => ({ ...rest, offset }));
+        const fp        = `${anim.duration}|${anim.easing || 'linear'}|${
+          anim._compiledKeyframes ? JSON.stringify(anim._compiledKeyframes) : anim.name
+        }`;
 
-        // Fingerprint covers everything that affects the WAAPI animation object
-        const fingerprint = `${anim.duration}|${anim.easing}|${anim._compiledKeyframes ? JSON.stringify(anim._compiledKeyframes) : anim.name}`;
+        const entry = getSamplerFor(fp, waKfs, anim.duration, anim.easing || 'linear');
+        if (!entry) return;
+        entry.wa.currentTime = localTime;
 
-        // Bust cache if fingerprint changed (duration, easing, or keyframes were edited)
-        let wa = elNode._animCache[cacheKey];
-        const stale = !wa || wa.playState === 'idle' || wa.effect === null
-                      || elNode._animCache[cacheKey + '_fp'] !== fingerprint;
-        if (stale) {
-          if (wa) { try { wa.cancel(); } catch(e) {} }
-          try {
-            wa = elNode.animate(waKeyframes, {
-              duration: anim.duration,
-              fill: 'both',
-              easing: 'linear',
-              iterations: 1,
-            });
-            wa.pause();
-            elNode._animCache[cacheKey]        = wa;
-            elNode._animCache[cacheKey + '_fp'] = fingerprint;
-          } catch(e) { return; }
-        }
+        // Read the isolated computed style for THIS animation only
+        const cs = window.getComputedStyle(entry.el);
 
-        if (inRange) {
-          wa.currentTime = state.currentTime - animStart;
-        } else if (past) {
-          wa.currentTime = anim.duration;
-        } else {
-          wa.currentTime = 0;
-        }
+        // ── Transform decomposition ──────────────────────────────────
+        const tc = parseTransformComponents(cs.transform);
+        preset.translateX += tc.translateX;
+        preset.translateY += tc.translateY;
+        // rotate: the sampler starts at identity (0 deg), so whatever
+        // rotate came back IS the delta this animation contributes.
+        preset.rotate     += tc.rotate;
+        preset.scaleX     *= tc.scaleX;
+        preset.scaleY     *= tc.scaleY;
 
-        // ── Zoom: WAAPI doesn't animate CSS zoom natively.
-        // Manually interpolate it from _compiledKeyframes when zoom is present.
+        // ── Opacity (as a multiplier from 1.0) ───────────────────────
+        // The preset keyframes express opacity as absolute (0-1).
+        // We multiply all preset contributions together.  The base
+        // layer.opacity is applied once at write-time.
+        const op = parseFloat(cs.opacity);
+        if (!isNaN(op)) preset.opacityMul *= op;
+
+        // ── Filters ──────────────────────────────────────────────────
+        const fComps = parseFilterComponents(cs.filter);
+        Object.entries(fComps).forEach(([fn, val]) => {
+          if (preset.filters[fn] == null) preset.filters[fn] = (fn === 'blur') ? 0 : 1;
+          preset.filters[fn] = (fn === 'blur') ? preset.filters[fn] + val : preset.filters[fn] * val;
+        });
+
+        // ── Zoom (CSS non-standard, interpolate manually) ─────────────
         const compiledKfs = anim._compiledKeyframes;
         if (compiledKfs && compiledKfs.some(k => k.zoom !== undefined)) {
-          const progress = inRange
-            ? (state.currentTime - animStart) / anim.duration
-            : past ? 1 : 0;
-          // Find surrounding keyframes
-          const sorted = [...compiledKfs].sort((a, b) => a.offset - b.offset);
-          let fromKf = sorted[0], toKf = sorted[sorted.length - 1];
+          const progress = localTime / anim.duration;
+          const sorted   = [...compiledKfs].sort((a,b) => a.offset - b.offset);
+          let from = sorted[0], to = sorted[sorted.length - 1];
           for (let ki = 0; ki < sorted.length - 1; ki++) {
             if (progress >= sorted[ki].offset && progress <= sorted[ki+1].offset) {
-              fromKf = sorted[ki]; toKf = sorted[ki+1]; break;
+              from = sorted[ki]; to = sorted[ki+1]; break;
             }
           }
-          const span = Math.max(0.0001, toKf.offset - fromKf.offset);
-          const t = Math.max(0, Math.min(1, (progress - fromKf.offset) / span));
-          const zFrom = fromKf.zoom !== undefined ? parseFloat(fromKf.zoom) : 1;
-          const zTo   = toKf.zoom   !== undefined ? parseFloat(toKf.zoom)   : 1;
-          const zVal  = zFrom + (zTo - zFrom) * t;
-          elNode.style.zoom = String(zVal);
-        } else if (inRange || past) {
-          // Reset zoom when animation has no zoom keyframes
-          elNode.style.zoom = '';
+          const span  = Math.max(0.0001, to.offset - from.offset);
+          const tProg = Math.max(0, Math.min(1, (progress - from.offset) / span));
+          const zA = from.zoom !== undefined ? parseFloat(from.zoom) : 1;
+          const zB = to.zoom   !== undefined ? parseFloat(to.zoom)   : 1;
+          preset.zoom = (preset.zoom == null ? 1 : preset.zoom) * (zA + (zB - zA) * tProg);
         }
       });
 
-      // Sync base opacity/rotation for layers with no active animation
-      const hasActiveAnim = layer.animations.some(a =>
-        state.currentTime >= a.start && state.currentTime <= a.start + a.duration
-      );
-      if (!hasActiveAnim && layer.animations.length === 0) {
-        elNode.style.transform = `rotate(${layer.rotation || 0}deg)`;
-        elNode.style.opacity = layer.opacity != null ? layer.opacity : 1;
+      // ── Step 2: Compute LKF contribution via JS interpolation ─────────
+      const rawKfs    = (layer._lkfCompiled && layer._lkfCompiled.raw) || [];
+      const lkfActive = rawKfs.length >= 2;
+      // tSec: use actual current time in seconds; don't clamp to lkfMaxT so
+      // that after the last keyframe the last value is held (correct) but the
+      // LKF is still considered "active" while time is within its range.
+      const lkfMaxT   = lkfActive ? rawKfs[rawKfs.length - 1].time : 0;
+      const lkfMinT   = lkfActive ? rawKfs[0].time : 0;
+      const tSec      = state.currentTime / 1000;
+      // Whether playhead is within the LKF range (hold last value when past end)
+      const inLkfRange = lkfActive && tSec <= lkfMaxT;
+      const pastLkf    = lkfActive && tSec > lkfMaxT;
+      // Effective time for interpolation (clamped to [first,last] keyframe)
+      const tLkf = lkfActive ? Math.max(lkfMinT, Math.min(lkfMaxT, tSec)) : 0;
+
+      const lkfHasProp = (prop) => rawKfs.some(k => k[prop] !== undefined);
+
+      // LKF deltas (identity = no change)
+      let lkf = {
+        translateX: 0, translateY: 0,
+        rotate:     0,
+        scaleX:     1, scaleY: 1,
+        opacity:    null,   // null = not set by LKF
+        blur:       null,   // null = not set by LKF
+      };
+
+      if (lkfActive) {
+        if (lkfHasProp('x')) {
+          const baseX = rawKfs[0].x !== undefined ? rawKfs[0].x : layer.x;
+          lkf.translateX = lkfInterp(rawKfs, tLkf, 'x', baseX) - baseX;
+        }
+        if (lkfHasProp('y')) {
+          const baseY = rawKfs[0].y !== undefined ? rawKfs[0].y : layer.y;
+          lkf.translateY = lkfInterp(rawKfs, tLkf, 'y', baseY) - baseY;
+        }
+        if (lkfHasProp('rotation')) {
+          lkf.rotate = lkfInterp(rawKfs, tLkf, 'rotation', baseRotation) - baseRotation;
+        }
+        if (lkfHasProp('scaleX')) lkf.scaleX = lkfInterp(rawKfs, tLkf, 'scaleX', 1);
+        if (lkfHasProp('scaleY')) lkf.scaleY = lkfInterp(rawKfs, tLkf, 'scaleY', 1);
+        if (lkfHasProp('opacity')) {
+          lkf.opacity = lkfInterp(rawKfs, tLkf, 'opacity', baseOpacity);
+        }
+        if (lkfHasProp('blur')) {
+          lkf.blur = lkfInterp(rawKfs, tLkf, 'blur', 0);
+        }
+      }
+
+      // ── Step 3: Compose everything and write once ──────────────────────
+
+      // TRANSFORM
+      // translate: preset delta + LKF delta (both relative to base position)
+      const finalTX     = preset.translateX + lkf.translateX;
+      const finalTY     = preset.translateY + lkf.translateY;
+      // rotation: base + preset rotation delta + LKF rotation delta
+      const composedRot = baseRotation + preset.rotate + lkf.rotate;
+      // scale: multiplicative — preset scale × LKF scale
+      const finalScaleX = preset.scaleX * lkf.scaleX;
+      const finalScaleY = preset.scaleY * lkf.scaleY;
+
+      elNode.style.transform = `translate(${finalTX.toFixed(3)}px,${finalTY.toFixed(3)}px) rotate(${composedRot.toFixed(3)}deg) scale(${finalScaleX.toFixed(4)},${finalScaleY.toFixed(4)})`;
+
+      // OPACITY
+      // preset.opacityMul is the product of all preset keyframe opacities (0-1).
+      // lkf.opacity is an absolute value (0-1) or null.
+      // Final = baseOpacity × presetMul × lkfMul
+      // where lkfMul = lkf.opacity / baseOpacity (converts absolute → relative)
+      let finalOpacity;
+      if (lkf.opacity !== null) {
+        // LKF sets an absolute opacity; treat preset as a multiplier on top
+        finalOpacity = lkf.opacity * preset.opacityMul;
+      } else {
+        // No LKF opacity — apply base × preset multiplier
+        finalOpacity = baseOpacity * preset.opacityMul;
+      }
+      elNode.style.opacity = String(Math.max(0, Math.min(1, finalOpacity)));
+
+      // FILTER
+      // preset.filters already has accumulated filter values.
+      // LKF blur is additive on top.
+      const composedFilters = { ...preset.filters };
+      if (lkf.blur !== null) {
+        composedFilters.blur = (composedFilters.blur || 0) + lkf.blur;
+      }
+      elNode.style.filter = buildFilterString(composedFilters) || '';
+
+      // ZOOM (preset only)
+      if (preset.zoom != null) {
+        elNode.style.zoom = String(preset.zoom);
+      } else {
+        elNode.style.zoom = '';
+      }
+
+      // ── LKF-only properties: width, height, radius, children ──────────
+      if (lkfActive) {
+        const shapeEl = elNode.querySelector('.element-shape');
+        const textEl  = elNode.querySelector('.element-text');
+
+        if (lkfHasProp('width'))
+          elNode.style.width = `${lkfInterp(rawKfs, tLkf, 'width', layer.width).toFixed(1)}px`;
+        if (lkfHasProp('height'))
+          elNode.style.height = `${lkfInterp(rawKfs, tLkf, 'height', layer.height).toFixed(1)}px`;
+        if (lkfHasProp('borderRadius'))
+          elNode.style.borderRadius = `${lkfInterp(rawKfs, tLkf, 'borderRadius', layer.radius || 0).toFixed(1)}px`;
+
+        if (lkfHasProp('fill') && shapeEl)
+          shapeEl.style.background = lkfInterpColor(rawKfs, tLkf, 'fill', layer.fill || 'transparent');
+        if (lkfHasProp('color') && textEl)
+          textEl.style.color = lkfInterpColor(rawKfs, tLkf, 'color', layer.color || '#ffffff');
+        if (lkfHasProp('fontSize') && textEl)
+          textEl.style.fontSize = `${lkfInterp(rawKfs, tLkf, 'fontSize', layer.fontSize || 16).toFixed(2)}px`;
+        if (lkfHasProp('letterSpacing') && textEl)
+          textEl.style.letterSpacing = `${lkfInterp(rawKfs, tLkf, 'letterSpacing', parseFloat(layer.letterSpacing || 0)).toFixed(3)}px`;
+        if (lkfHasProp('lineHeight') && textEl)
+          textEl.style.lineHeight = lkfInterp(rawKfs, tLkf, 'lineHeight', parseFloat(layer.lineHeight || 1)).toFixed(4);
+        if (lkfHasProp('stroke') || lkfHasProp('strokeWidth')) {
+          const sw = lkfInterp(rawKfs, tLkf, 'strokeWidth', layer.strokeWidth || 0).toFixed(1);
+          const sc = lkfInterpColor(rawKfs, tLkf, 'stroke', layer.stroke || 'transparent');
+          elNode.style.outline = `${sw}px solid ${sc}`;
+        }
+      } else {
+        // No LKF — clear any residual LKF inline styles from a previous render
+        if (elNode._lkfStylesApplied) {
+          elNode.style.width = elNode.style.height = elNode.style.borderRadius =
+            elNode.style.outline = '';
+          const tec = elNode.querySelector('.element-text');
+          const sec = elNode.querySelector('.element-shape');
+          if (tec) { tec.style.color = tec.style.fontSize = tec.style.letterSpacing = tec.style.lineHeight = ''; }
+          if (sec) { sec.style.background = ''; }
+        }
+      }
+      elNode._lkfStylesApplied = lkfActive;
+
+      // ── Fallback: nothing animating at all — restore base render state ─
+      if (!anyPresetActive && !lkfActive) {
+        elNode.style.transform    = `rotate(${baseRotation}deg)`;
+        elNode.style.opacity      = String(baseOpacity);
+        elNode.style.filter       = '';
+        elNode.style.zoom         = '';
+        elNode.style.width        = '';
+        elNode.style.height       = '';
+        elNode.style.borderRadius = '';
+        elNode.style.outline      = '';
       }
     });
   }
@@ -3051,6 +3716,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
         trackRow.appendChild(block);
       });
+
+      // ─── Draw layer keyframe diamond markers on this track ───
+      if (layer.layerKeyframes && layer.layerKeyframes.length > 0) {
+        layer.layerKeyframes.forEach(kf => {
+          const marker = document.createElement('div');
+          const kfX = (kf.time * 1000 / 1000) * 200; // 200px = 1s
+          const curT = state.currentTime / 1000;
+          const isActive = Math.abs(kf.time - curT) < 0.02;
+
+          marker.className = 'kfe-timeline-marker';
+          marker.title = `Keyframe at ${kf.time.toFixed(2)}s — click to jump`;
+          marker.dataset.kfTime = kf.time;
+          marker.style.cssText = `
+            position:absolute;
+            left:${kfX}px;
+            top:50%;
+            transform:translate(-50%,-50%) rotate(45deg);
+            width:8px;height:8px;
+            background:${isActive ? '#a78bfa' : '#7c3aed'};
+            border:1.5px solid ${isActive ? '#c4b5fd' : 'rgba(167,139,250,0.6)'};
+            border-radius:2px;
+            cursor:pointer;
+            z-index:4;
+            box-shadow:${isActive ? '0 0 6px rgba(167,139,250,0.8)' : 'none'};
+            transition:all 0.15s;
+          `;
+
+          // Click marker → jump playhead and refresh panel
+          marker.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            state.currentTime = kf.time * 1000;
+            updatePlayheadPosition();
+            previewTimelineAtTime();
+            renderPropertyPanel();
+          });
+
+          // Drag marker left/right
+          marker.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            const startX = e.clientX;
+            const origTime = kf.time;
+
+            const onMove = (mv) => {
+              const dx = (mv.clientX - startX) / 200; // in seconds
+              const newTime = Math.max(0, parseFloat((origTime + dx).toFixed(3)));
+              kf.time = newTime;
+              marker.style.left = `${(kf.time * 1000 / 1000) * 200}px`;
+              state.currentTime = newTime * 1000;
+              updatePlayheadPosition();
+              previewTimelineAtTime();
+            };
+            const onUp = () => {
+              layer.layerKeyframes.sort((a,b)=>a.time-b.time);
+              applyLayerKeyframeAnimation(layer);
+              saveState();
+              renderTimeline();
+              renderPropertyPanel();
+              window.removeEventListener('mousemove', onMove);
+              window.removeEventListener('mouseup', onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+          });
+
+          trackRow.appendChild(marker);
+        });
+      }
 
       rowsContainer.appendChild(trackRow);
     });
@@ -3194,6 +3926,7 @@ document.addEventListener('DOMContentLoaded', () => {
           state.scenes = data.scenes;
           state.currentSceneId = data.scenes[0].id;
           state.selectedLayerId = null;
+          recompileAllLayerKeyframes();
           saveState();
           renderAll();
           showToast("Project Loaded Successfully!");
@@ -3241,6 +3974,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const canvasSizeLabel = document.getElementById('canvasSizeLabel');
         if (canvasSizeLabel) canvasSizeLabel.textContent = `${state.canvasWidth}×${state.canvasHeight}`;
+        recompileAllLayerKeyframes();
         saveState();
         renderAll();
         centerCanvas();
@@ -3266,6 +4000,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPropertyPanel();
     renderTimeline();
     updatePlayheadPosition();
+    // Re-apply LKF / preset animations after DOM rebuild so WAAPI state is restored
+    previewTimelineAtTime();
   }
 
   // Setup tab switcher logic

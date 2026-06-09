@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'cubic-bezier(0.22,1,0.36,1)':  'Curves.easeOutExpo',
     'cubic-bezier(0.34,1.56,0.64,1)': 'Curves.elasticOut',
     'cubic-bezier(0.4,0,0.2,1)':    'Curves.fastOutSlowIn',
+    'cubic-bezier(0.25,0.46,0.45,0.94)': 'Curves.easeOutQuad', // Leaf Fall default
   };
 
   // ── Animation keyframes map (for JSON export) ─────────────────────────────
@@ -305,6 +306,24 @@ document.addEventListener('DOMContentLoaded', () => {
       { offset: 0,   transform: 'scale(1)',    zoom: '1'    },
       { offset: 0.5, transform: 'scale(1.25)', zoom: '1.25' },
       { offset: 1,   transform: 'scale(1)',    zoom: '1'    },
+    ],
+    // ── Leaf Fall ────────────────────────────────────────────────────────────
+    // Organic falling-leaf motion: vertical drop with horizontal sine-wave
+    // oscillation and gentle rotational tumble. 11 keyframes approximate the
+    // natural sine drift; easing transitions keep the motion soft throughout.
+    'Leaf Fall': [
+      { offset: 0,    transform: 'translateY(-120px) translateX(0px)   rotate(-8deg)',  opacity: 0   },
+      { offset: 0.05, transform: 'translateY(-96px)  translateX(6px)   rotate(-5deg)',  opacity: 0.6 },
+      { offset: 0.1,  transform: 'translateY(-72px)  translateX(14px)  rotate(0deg)',   opacity: 1   },
+      { offset: 0.2,  transform: 'translateY(-38px)  translateX(22px)  rotate(6deg)'               },
+      { offset: 0.3,  transform: 'translateY(0px)    translateX(18px)  rotate(10deg)'              },
+      { offset: 0.4,  transform: 'translateY(36px)   translateX(6px)   rotate(4deg)'               },
+      { offset: 0.5,  transform: 'translateY(72px)   translateX(-12px) rotate(-4deg)'              },
+      { offset: 0.6,  transform: 'translateY(108px)  translateX(-22px) rotate(-10deg)'             },
+      { offset: 0.7,  transform: 'translateY(140px)  translateX(-14px) rotate(-6deg)'              },
+      { offset: 0.82, transform: 'translateY(165px)  translateX(4px)   rotate(2deg)'               },
+      { offset: 0.92, transform: 'translateY(180px)  translateX(10px)  rotate(5deg)'               },
+      { offset: 1,    transform: 'translateY(190px)  translateX(6px)   rotate(3deg)',   opacity: 1   },
     ],
   };
 
@@ -606,6 +625,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="anim-target image-reveal-wrapper" style="overflow:hidden;border-radius:16px;">
         <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" alt="Image Zoom Loop" style="width:100%;height:100%;object-fit:cover;display:block;">
         <div class="image-reveal-tag">Zoom Loop</div>
+      </div>
+    `,
+    'Leaf Fall': `
+      <div class="leaf-fall-scene">
+        <div class="leaf-fall-bg">
+          <div class="leaf-branch"></div>
+        </div>
+        <div class="anim-target leaf-fall-leaf">🍂</div>
       </div>
     `,
   };

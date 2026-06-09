@@ -2401,3 +2401,119 @@ input[type="range"]::-webkit-slider-thumb:hover {
     min-height: 320px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LEAF FALL — Organic falling-leaf animation
+   Natural sine-wave horizontal drift + rotational tumble + vertical drop.
+   Duration recommended: 2400–3600ms for the most lifelike feel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Animation class applied to the target element */
+.anim-leaf-fall {
+  animation-name: leafFall;
+  /* Default timing: slow, lightweight ease-in at top, ease-out at landing */
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* Core Leaf Fall keyframes
+   — Y: falls from -120px to +190px (full viewport traversal in preview)
+   — X: sine-wave oscillation ±22px for natural wind-drift feeling
+   — rotate: small tumble between -10° and +10°, never mechanical
+   — opacity: fades in at the very top (leaf detaching from branch)          */
+@keyframes leafFall {
+  0%   { transform: translateY(-120px) translateX(0px)   rotate(-8deg);  opacity: 0;   }
+  5%   { transform: translateY(-96px)  translateX(6px)   rotate(-5deg);  opacity: 0.6; }
+  10%  { transform: translateY(-72px)  translateX(14px)  rotate(0deg);   opacity: 1;   }
+  20%  { transform: translateY(-38px)  translateX(22px)  rotate(6deg);                 }
+  30%  { transform: translateY(0px)    translateX(18px)  rotate(10deg);                }
+  40%  { transform: translateY(36px)   translateX(6px)   rotate(4deg);                 }
+  50%  { transform: translateY(72px)   translateX(-12px) rotate(-4deg);                }
+  60%  { transform: translateY(108px)  translateX(-22px) rotate(-10deg);               }
+  70%  { transform: translateY(140px)  translateX(-14px) rotate(-6deg);                }
+  82%  { transform: translateY(165px)  translateX(4px)   rotate(2deg);                 }
+  92%  { transform: translateY(180px)  translateX(10px)  rotate(5deg);                 }
+  100% { transform: translateY(190px)  translateX(6px)   rotate(3deg);   opacity: 1;   }
+}
+
+/* ── Preview Scene Wrapper ──────────────────────────────────────────────── */
+.leaf-fall-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    #c8e6b0 0%,
+    #d4edaa 25%,
+    #e8d5a0 60%,
+    #c9a96e 100%
+  );
+  border-radius: 16px;
+}
+
+/* Soft ambient light gradient overlay */
+.leaf-fall-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 10%, rgba(255,255,255,0.35) 0%, transparent 60%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Background tree/branch silhouette suggestion */
+.leaf-fall-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* Stylised branch — a simple arced element at top-left */
+.leaf-branch {
+  position: absolute;
+  top: 10px;
+  left: -10px;
+  width: 160px;
+  height: 40px;
+  border-bottom: 6px solid rgba(101, 67, 33, 0.55);
+  border-radius: 0 0 80px 0;
+  transform: rotate(-6deg);
+}
+
+/* Small stub for a secondary branch */
+.leaf-branch::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  width: 60px;
+  height: 24px;
+  border-bottom: 5px solid rgba(101, 67, 33, 0.4);
+  border-radius: 0 0 40px 0;
+  transform: rotate(-12deg);
+}
+
+/* The leaf element itself */
+.leaf-fall-leaf {
+  position: absolute;
+  top: 20px;
+  font-size: 2.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(80, 50, 10, 0.25));
+  /* transform-origin slightly off-center for a more organic tumble */
+  transform-origin: 40% 30%;
+  user-select: none;
+}
+
+/* Light-theme adjustments */
+.light-theme .leaf-fall-scene {
+  background: linear-gradient(180deg, #d4edaa 0%, #e8d5a0 60%, #c9a96e 100%);
+}
