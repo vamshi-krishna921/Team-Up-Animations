@@ -438,16 +438,16 @@
 .canvas-viewport-frame {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 50%;;
   transform: translate(-50%, -50%);
   width: 800px;
   height: 600px;
-  background: rgba(255, 255, 255, 0.02);
+  background: #0a0a14;
   border: 1px dashed rgba(167, 139, 250, 0.3);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   pointer-events: auto;
   border-radius: 4px;
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* Image Frame Layer — rectangle with image fill + pan/zoom */
@@ -467,7 +467,7 @@
 }
 
 .light-theme .canvas-viewport-frame {
-  background: rgba(0, 0, 0, 0.01);
+  background: #0a0a14;
   border-color: rgba(124, 58, 237, 0.2);
 }
 

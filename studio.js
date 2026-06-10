@@ -31,45 +31,60 @@ document.addEventListener('DOMContentLoaded', () => {
             name: '#Background',
             x: 0, y: 0,
             width: 800, height: 600,
-            fill: '#0f0f1a',
+            fill: '#0a0a14',
             radius: 0,
             opacity: 1, visible: true, locked: true,
             animations: []
           },
           {
-            id: 'layer_glow',
+            id: 'layer_glow1',
             type: 'shape',
             shapeType: 'circle',
-            name: 'Glow Orb',
-            x: 440, y: 100,
-            width: 380, height: 380,
-            fill: 'radial-gradient(circle, rgba(124,58,237,0.35) 0%, transparent 70%)',
-            radius: 190,
+            name: 'Glow Left',
+            x: -60, y: 180,
+            width: 420, height: 420,
+            fill: 'radial-gradient(circle, rgba(124,58,237,0.28) 0%, transparent 68%)',
+            radius: 210,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_glow1', name: 'Liquid Float', start: 0, duration: 4000,
+              { id: 'anim_gl1', name: 'Liquid Float', start: 0, duration: 5000,
                 easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
           {
-            id: 'layer_hero',
+            id: 'layer_glow2',
+            type: 'shape',
+            shapeType: 'circle',
+            name: 'Glow Right',
+            x: 460, y: 60,
+            width: 340, height: 340,
+            fill: 'radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 68%)',
+            radius: 170,
+            opacity: 1, visible: true, locked: false,
+            animations: [
+              { id: 'anim_gl2', name: 'Liquid Float', start: 500, duration: 4500,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+            ]
+          },
+          {
+            id: 'layer_pepsi_card',
             type: 'ui',
             name: 'Hero Card',
-            x: 440, y: 110,
-            width: 340, height: 380,
-            html: `<div style="width:100%;height:100%;background:linear-gradient(135deg,rgba(124,58,237,0.18) 0%,rgba(99,102,241,0.08) 100%);border:1px solid rgba(124,58,237,0.25);border-radius:24px;backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;box-sizing:border-box;">
-              <div style="width:80px;height:80px;background:linear-gradient(135deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(124,58,237,0.4);">✦</div>
-              <div style="color:#fff;font-size:20px;font-weight:800;text-align:center;line-height:1.3;">Animation<br/>Studio</div>
-              <div style="color:rgba(255,255,255,0.5);font-size:13px;text-align:center;line-height:1.5;">Create stunning motion<br/>for any platform</div>
-              <div style="display:flex;gap:8px;margin-top:4px;">
-                <div style="padding:6px 14px;background:rgba(124,58,237,0.3);border:1px solid rgba(124,58,237,0.4);border-radius:20px;color:#a78bfa;font-size:11px;font-weight:600;">Flutter</div>
-                <div style="padding:6px 14px;background:rgba(99,102,241,0.3);border:1px solid rgba(99,102,241,0.4);border-radius:20px;color:#818cf8;font-size:11px;font-weight:600;">React</div>
-                <div style="padding:6px 14px;background:rgba(236,72,153,0.2);border:1px solid rgba(236,72,153,0.3);border-radius:20px;color:#f472b6;font-size:11px;font-weight:600;">CSS</div>
+            x: 462, y: 96,
+            width: 320, height: 380,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(145deg,rgba(20,20,35,0.95) 0%,rgba(30,20,50,0.9) 100%);border:1px solid rgba(124,58,237,0.3);border-radius:24px;backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;box-sizing:border-box;box-shadow:0 24px 64px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.06);">
+              <div style="width:80px;height:80px;background:linear-gradient(135deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(124,58,237,0.45);">✦</div>
+              <div style="color:#fff;font-size:19px;font-weight:800;text-align:center;line-height:1.25;letter-spacing:-0.3px;">Animation<br/>Studio</div>
+              <div style="color:rgba(255,255,255,0.45);font-size:12px;text-align:center;line-height:1.55;">Create stunning motion<br/>for any platform</div>
+              <div style="display:flex;gap:7px;margin-top:2px;flex-wrap:wrap;justify-content:center;">
+                <div style="padding:5px 13px;background:rgba(124,58,237,0.28);border:1px solid rgba(124,58,237,0.45);border-radius:20px;color:#a78bfa;font-size:10px;font-weight:700;letter-spacing:0.2px;">Flutter</div>
+                <div style="padding:5px 13px;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.45);border-radius:20px;color:#818cf8;font-size:10px;font-weight:700;letter-spacing:0.2px;">React</div>
+                <div style="padding:5px 13px;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.35);border-radius:20px;color:#f472b6;font-size:10px;font-weight:700;letter-spacing:0.2px;">CSS</div>
               </div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_hero1', name: 'Slide Up', start: 300, duration: 1200,
+              { id: 'anim_pepsi1', name: 'Slide Up', start: 300, duration: 1100,
                 easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
@@ -77,13 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_badge',
             type: 'ui',
             name: 'Live Badge',
-            x: 450, y: 86,
-            width: 110, height: 32,
-            html: `<div style="width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(124,58,237,0.5);">
-              <div style="width:7px;height:7px;background:#4ade80;border-radius:50%;box-shadow:0 0 8px #4ade80;"></div>LIVE STUDIO</div>`,
+            x: 474, y: 74,
+            width: 116, height: 30,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;font-weight:800;color:#fff;box-shadow:0 4px 18px rgba(124,58,237,0.55);letter-spacing:0.4px;">
+              <div style="width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 6px #4ade80;flex-shrink:0;"></div>LIVE STUDIO</div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_badge1', name: 'Fade In', start: 1600, duration: 800,
+              { id: 'anim_badge1', name: 'Fade In', start: 1500, duration: 700,
                 easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
@@ -91,15 +106,15 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_title',
             type: 'text',
             name: 'Title Text',
-            x: 40, y: 140,
-            width: 380, height: 100,
+            x: 36, y: 130,
+            width: 400, height: 110,
             content: 'Animate\nBeautifully',
-            fontSize: 52,
+            fontSize: 54,
             fontWeight: '800',
             fontFamily: 'Inter',
             color: '#ffffff',
-            letterSpacing: '-1px',
-            lineHeight: '1.1',
+            letterSpacing: '-1.5px',
+            lineHeight: '1.08',
             alignment: 'left',
             opacity: 1, visible: true, locked: false,
             animations: [
@@ -111,19 +126,19 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_subtitle',
             type: 'text',
             name: 'Subtitle Text',
-            x: 40, y: 265,
-            width: 360, height: 70,
+            x: 36, y: 262,
+            width: 370, height: 68,
             content: 'Design, animate and export\nstunning animations to any platform',
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: '400',
             fontFamily: 'Inter',
-            color: 'rgba(255,255,255,0.55)',
+            color: 'rgba(255,255,255,0.52)',
             letterSpacing: '0px',
-            lineHeight: '1.6',
+            lineHeight: '1.62',
             alignment: 'left',
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_sub1', name: 'Fade In', start: 600, duration: 900,
+              { id: 'anim_sub1', name: 'Fade In', start: 550, duration: 900,
                 easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
@@ -131,12 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_button',
             type: 'ui',
             name: 'Button',
-            x: 40, y: 370,
-            width: 180, height: 52,
-            html: `<button style="width:100%;height:100%;cursor:default;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:16px;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(124,58,237,0.45);letter-spacing:0.3px;">Get Started →</button>`,
+            x: 36, y: 362,
+            width: 176, height: 50,
+            html: `<button style="width:100%;height:100%;cursor:default;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 8px 28px rgba(124,58,237,0.48);letter-spacing:0.2px;">Get Started →</button>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_btn1', name: 'Pulse', start: 1100, duration: 1400,
+              { id: 'anim_btn1', name: 'Pulse', start: 1050, duration: 1400,
                 easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
@@ -144,27 +159,27 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_stats',
             type: 'ui',
             name: 'Stats Row',
-            x: 40, y: 450,
-            width: 360, height: 60,
+            x: 36, y: 442,
+            width: 360, height: 58,
             html: `<div style="width:100%;height:100%;display:flex;gap:20px;align-items:center;">
               <div style="text-align:left;">
-                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">25+</div>
-                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Animations</div>
+                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">25+</div>
+                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Animations</div>
               </div>
-              <div style="width:1px;height:36px;background:rgba(255,255,255,0.1);"></div>
+              <div style="width:1px;height:34px;background:rgba(255,255,255,0.09);"></div>
               <div style="text-align:left;">
-                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">3</div>
-                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Platforms</div>
+                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">3</div>
+                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Platforms</div>
               </div>
-              <div style="width:1px;height:36px;background:rgba(255,255,255,0.1);"></div>
+              <div style="width:1px;height:34px;background:rgba(255,255,255,0.09);"></div>
               <div style="text-align:left;">
-                <div style="color:#fff;font-size:22px;font-weight:800;line-height:1;">∞</div>
-                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">Possibilities</div>
+                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">∞</div>
+                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Possibilities</div>
               </div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_stats1', name: 'Fade In', start: 1400, duration: 900,
+              { id: 'anim_stats1', name: 'Fade In', start: 1350, duration: 900,
                 easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           },
@@ -172,17 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'layer_icons',
             type: 'ui',
             name: 'Floating Icons',
-            x: 36, y: 540,
-            width: 200, height: 36,
-            html: `<div style="display:flex;gap:8px;align-items:center;">
-              <div style="width:32px;height:32px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.35);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎨</div>
-              <div style="width:32px;height:32px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.35);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">⚡</div>
-              <div style="width:32px;height:32px;background:rgba(236,72,153,0.2);border:1px solid rgba(236,72,153,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚀</div>
-              <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-left:4px;">v2.0 Studio</div>
+            x: 32, y: 530,
+            width: 210, height: 36,
+            html: `<div style="display:flex;gap:7px;align-items:center;">
+              <div style="width:30px;height:30px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.38);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">🎨</div>
+              <div style="width:30px;height:30px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.38);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">⚡</div>
+              <div style="width:30px;height:30px;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">🚀</div>
+              <div style="color:rgba(255,255,255,0.28);font-size:11px;margin-left:4px;font-weight:500;">v2.0 Studio</div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_icons1', name: 'Slide Up', start: 1800, duration: 800,
+              { id: 'anim_icons1', name: 'Slide Up', start: 1750, duration: 800,
                 easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
             ]
           }
@@ -663,37 +678,62 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
       
-      // Switch active scene
+      // Switch active scene on single click (but don't steal from dblclick)
+      let clickTimer = null;
       div.addEventListener('click', (e) => {
         if (e.target.closest('.scene-actions') || e.target.closest('input')) return;
-        state.currentSceneId = scene.id;
-        state.selectedLayerId = null;
-        state.selectedLayerIds = [];
-        renderAll();
+        // Delay the click so a double-click on the name can cancel it
+        if (e.target === nameSpan || e.target.closest('.scene-meta-name')) {
+          clearTimeout(clickTimer);
+          clickTimer = setTimeout(() => {
+            state.currentSceneId = scene.id;
+            state.selectedLayerId = null;
+            state.selectedLayerIds = [];
+            renderAll();
+          }, 220); // just above typical dblclick interval
+        } else {
+          state.currentSceneId = scene.id;
+          state.selectedLayerId = null;
+          state.selectedLayerIds = [];
+          renderAll();
+        }
       });
 
       // Double-click to rename scene
       const nameSpan = div.querySelector('.scene-meta-name');
+      nameSpan.title = 'Double-click to rename';
       nameSpan.addEventListener('dblclick', (e) => {
         e.stopPropagation();
+        clearTimeout(clickTimer); // cancel the pending single-click
         const input = document.createElement('input');
         input.type = 'text';
         input.value = scene.name;
         input.className = 'scene-rename-input';
-        input.style.fontSize = 'inherit';
-        input.style.width = '100px';
-        input.style.background = 'var(--bg-code)';
-        input.style.color = 'var(--text-primary)';
-        input.style.border = '1px solid var(--border)';
-        input.style.borderRadius = '4px';
-        input.style.padding = '2px 4px';
-        
+        input.style.cssText = `
+          font-size: inherit;
+          font-family: inherit;
+          font-weight: inherit;
+          width: 140px;
+          max-width: 140px;
+          background: rgba(124,58,237,0.15);
+          color: var(--text-primary);
+          border: 1.5px solid rgba(124,58,237,0.6);
+          border-radius: 5px;
+          padding: 2px 6px;
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
+        `;
+
         nameSpan.replaceWith(input);
         input.focus();
-        
+        input.select();
+
+        let saved = false;
         const saveRename = () => {
+          if (saved) return;
+          saved = true;
           const newName = input.value.trim();
-          if (newName) {
+          if (newName && newName !== scene.name) {
             scene.name = newName;
             saveState();
             renderAll();
@@ -701,11 +741,16 @@ document.addEventListener('DOMContentLoaded', () => {
             input.replaceWith(nameSpan);
           }
         };
-        
+        const cancelRename = () => {
+          if (saved) return;
+          saved = true;
+          input.replaceWith(nameSpan);
+        };
+
         input.addEventListener('blur', saveRename);
         input.addEventListener('keydown', (evt) => {
-          if (evt.key === 'Enter') saveRename();
-          if (evt.key === 'Escape') input.replaceWith(nameSpan);
+          if (evt.key === 'Enter') { evt.preventDefault(); saveRename(); }
+          if (evt.key === 'Escape') { evt.preventDefault(); cancelRename(); }
         });
       });
 
@@ -4000,8 +4045,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPropertyPanel();
     renderTimeline();
     updatePlayheadPosition();
-    // Re-apply LKF / preset animations after DOM rebuild so WAAPI state is restored
-    previewTimelineAtTime();
+    // Only re-apply animation state if the timeline has been actively scrubbed
+    // (currentTime > 0) or playback is running, to avoid hiding elements at
+    // their start-of-animation state on initial page load / undo / scene switch.
+    if (state.currentTime > 0 || state.isPlaying) {
+      previewTimelineAtTime();
+    }
   }
 
   // Setup tab switcher logic
