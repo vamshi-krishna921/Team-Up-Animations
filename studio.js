@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Scene 1',
         transition: 'fade',
         layers: [
+          // ── Background ────────────────────────────────────────────
           {
             id: 'layer_bg',
             type: 'shape',
@@ -36,19 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
             opacity: 1, visible: true, locked: true,
             animations: []
           },
+          // ── Ambient glow orbs ─────────────────────────────────────
           {
             id: 'layer_glow1',
             type: 'shape',
             shapeType: 'circle',
-            name: 'Glow Left',
-            x: -60, y: 180,
-            width: 420, height: 420,
-            fill: 'radial-gradient(circle, rgba(124,58,237,0.28) 0%, transparent 68%)',
-            radius: 210,
+            name: 'Glow Orb',
+            x: -80, y: 160,
+            width: 460, height: 460,
+            fill: 'radial-gradient(circle, rgba(124,58,237,0.32) 0%, transparent 65%)',
+            radius: 230,
             opacity: 1, visible: true, locked: false,
             animations: [
               { id: 'anim_gl1', name: 'Liquid Float', start: 0, duration: 5000,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+                easing: 'ease-in-out', direction: 'normal', fill: 'forwards' }
             ]
           },
           {
@@ -56,149 +58,143 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'shape',
             shapeType: 'circle',
             name: 'Glow Right',
-            x: 460, y: 60,
-            width: 340, height: 340,
-            fill: 'radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 68%)',
-            radius: 170,
+            x: 500, y: 40,
+            width: 320, height: 320,
+            fill: 'radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 65%)',
+            radius: 160,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_gl2', name: 'Liquid Float', start: 500, duration: 4500,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_gl2', name: 'Liquid Float', start: 800, duration: 4200,
+                easing: 'ease-in-out', direction: 'normal', fill: 'forwards' }
             ]
           },
+          // ── Hero card (right side) ────────────────────────────────
           {
-            id: 'layer_pepsi_card',
+            id: 'layer_hero_card',
             type: 'ui',
             name: 'Hero Card',
-            x: 462, y: 96,
-            width: 320, height: 380,
-            html: `<div style="width:100%;height:100%;background:linear-gradient(145deg,rgba(20,20,35,0.95) 0%,rgba(30,20,50,0.9) 100%);border:1px solid rgba(124,58,237,0.3);border-radius:24px;backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;box-sizing:border-box;box-shadow:0 24px 64px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.06);">
-              <div style="width:80px;height:80px;background:linear-gradient(135deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(124,58,237,0.45);">✦</div>
-              <div style="color:#fff;font-size:19px;font-weight:800;text-align:center;line-height:1.25;letter-spacing:-0.3px;">Animation<br/>Studio</div>
-              <div style="color:rgba(255,255,255,0.45);font-size:12px;text-align:center;line-height:1.55;">Create stunning motion<br/>for any platform</div>
-              <div style="display:flex;gap:7px;margin-top:2px;flex-wrap:wrap;justify-content:center;">
-                <div style="padding:5px 13px;background:rgba(124,58,237,0.28);border:1px solid rgba(124,58,237,0.45);border-radius:20px;color:#a78bfa;font-size:10px;font-weight:700;letter-spacing:0.2px;">Flutter</div>
-                <div style="padding:5px 13px;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.45);border-radius:20px;color:#818cf8;font-size:10px;font-weight:700;letter-spacing:0.2px;">React</div>
-                <div style="padding:5px 13px;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.35);border-radius:20px;color:#f472b6;font-size:10px;font-weight:700;letter-spacing:0.2px;">CSS</div>
+            x: 470, y: 100,
+            width: 300, height: 370,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(145deg,rgba(18,18,32,0.98) 0%,rgba(28,18,48,0.95) 100%);border:1px solid rgba(124,58,237,0.28);border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:28px;box-sizing:border-box;box-shadow:0 20px 60px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.05);">
+              <div style="width:76px;height:76px;background:linear-gradient(135deg,#7c3aed,#6366f1);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 28px rgba(124,58,237,0.5);flex-shrink:0;">✦</div>
+              <div style="color:#fff;font-size:18px;font-weight:800;text-align:center;line-height:1.25;letter-spacing:-0.3px;">Animation<br/>Studio</div>
+              <div style="color:rgba(255,255,255,0.42);font-size:12px;text-align:center;line-height:1.55;">Create stunning motion<br/>for any platform</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+                <span style="padding:4px 12px;background:rgba(124,58,237,0.25);border:1px solid rgba(124,58,237,0.4);border-radius:20px;color:#a78bfa;font-size:10px;font-weight:700;">Flutter</span>
+                <span style="padding:4px 12px;background:rgba(99,102,241,0.25);border:1px solid rgba(99,102,241,0.4);border-radius:20px;color:#818cf8;font-size:10px;font-weight:700;">React</span>
+                <span style="padding:4px 12px;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);border-radius:20px;color:#f472b6;font-size:10px;font-weight:700;">CSS</span>
               </div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_pepsi1', name: 'Slide Up', start: 300, duration: 1100,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_hero1', name: 'Fade In', start: 200, duration: 900,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           },
+          // ── Live badge ────────────────────────────────────────────
           {
             id: 'layer_badge',
             type: 'ui',
             name: 'Live Badge',
-            x: 474, y: 74,
-            width: 116, height: 30,
-            html: `<div style="width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;font-weight:800;color:#fff;box-shadow:0 4px 18px rgba(124,58,237,0.55);letter-spacing:0.4px;">
-              <div style="width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 6px #4ade80;flex-shrink:0;"></div>LIVE STUDIO</div>`,
+            x: 482, y: 78,
+            width: 114, height: 28,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:20px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:800;color:#fff;box-shadow:0 3px 14px rgba(124,58,237,0.6);letter-spacing:0.5px;">
+              <div style="width:5px;height:5px;background:#4ade80;border-radius:50%;box-shadow:0 0 5px #4ade80;flex-shrink:0;"></div>LIVE STUDIO</div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_badge1', name: 'Fade In', start: 1500, duration: 700,
-                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_badge1', name: 'Fade In', start: 1100, duration: 600,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           },
+          // ── Left content ──────────────────────────────────────────
           {
             id: 'layer_title',
             type: 'text',
             name: 'Title Text',
-            x: 36, y: 130,
-            width: 400, height: 110,
+            x: 36, y: 138,
+            width: 400, height: 106,
             content: 'Animate\nBeautifully',
-            fontSize: 54,
+            fontSize: 52,
             fontWeight: '800',
             fontFamily: 'Inter',
             color: '#ffffff',
             letterSpacing: '-1.5px',
-            lineHeight: '1.08',
+            lineHeight: '1.09',
             alignment: 'left',
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_title1', name: 'Slide Up', start: 0, duration: 1000,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_title1', name: 'Slide Up', start: 0, duration: 900,
+                easing: 'cubic-bezier(0.22,1,0.36,1)', direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_subtitle',
             type: 'text',
             name: 'Subtitle Text',
-            x: 36, y: 262,
-            width: 370, height: 68,
+            x: 36, y: 264,
+            width: 380, height: 64,
             content: 'Design, animate and export\nstunning animations to any platform',
             fontSize: 14,
             fontWeight: '400',
             fontFamily: 'Inter',
             color: 'rgba(255,255,255,0.52)',
             letterSpacing: '0px',
-            lineHeight: '1.62',
+            lineHeight: '1.65',
             alignment: 'left',
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_sub1', name: 'Fade In', start: 550, duration: 900,
-                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_sub1', name: 'Fade In', start: 500, duration: 800,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_button',
             type: 'ui',
             name: 'Button',
-            x: 36, y: 362,
-            width: 176, height: 50,
-            html: `<button style="width:100%;height:100%;cursor:default;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 8px 28px rgba(124,58,237,0.48);letter-spacing:0.2px;">Get Started →</button>`,
+            x: 36, y: 358,
+            width: 174, height: 48,
+            html: `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:0 8px 26px rgba(124,58,237,0.46);letter-spacing:0.2px;cursor:default;">Get Started →</div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_btn1', name: 'Pulse', start: 1050, duration: 1400,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_btn1', name: 'Fade In', start: 750, duration: 700,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_stats',
             type: 'ui',
             name: 'Stats Row',
-            x: 36, y: 442,
-            width: 360, height: 58,
-            html: `<div style="width:100%;height:100%;display:flex;gap:20px;align-items:center;">
-              <div style="text-align:left;">
-                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">25+</div>
-                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Animations</div>
-              </div>
-              <div style="width:1px;height:34px;background:rgba(255,255,255,0.09);"></div>
-              <div style="text-align:left;">
-                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">3</div>
-                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Platforms</div>
-              </div>
-              <div style="width:1px;height:34px;background:rgba(255,255,255,0.09);"></div>
-              <div style="text-align:left;">
-                <div style="color:#fff;font-size:21px;font-weight:800;line-height:1;">∞</div>
-                <div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;letter-spacing:0.2px;">Possibilities</div>
-              </div>
+            x: 36, y: 436,
+            width: 360, height: 56,
+            html: `<div style="width:100%;height:100%;display:flex;gap:18px;align-items:center;">
+              <div><div style="color:#fff;font-size:20px;font-weight:800;line-height:1;">25+</div><div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;">Animations</div></div>
+              <div style="width:1px;height:32px;background:rgba(255,255,255,0.09);"></div>
+              <div><div style="color:#fff;font-size:20px;font-weight:800;line-height:1;">3</div><div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;">Platforms</div></div>
+              <div style="width:1px;height:32px;background:rgba(255,255,255,0.09);"></div>
+              <div><div style="color:#fff;font-size:20px;font-weight:800;line-height:1;">∞</div><div style="color:rgba(255,255,255,0.38);font-size:10px;margin-top:3px;">Possibilities</div></div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_stats1', name: 'Fade In', start: 1350, duration: 900,
-                easing: 'ease-out', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_stats1', name: 'Fade In', start: 950, duration: 800,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           },
           {
             id: 'layer_icons',
             type: 'ui',
             name: 'Floating Icons',
-            x: 32, y: 530,
-            width: 210, height: 36,
+            x: 34, y: 520,
+            width: 200, height: 34,
             html: `<div style="display:flex;gap:7px;align-items:center;">
-              <div style="width:30px;height:30px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.38);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">🎨</div>
-              <div style="width:30px;height:30px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.38);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">⚡</div>
-              <div style="width:30px;height:30px;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;">🚀</div>
-              <div style="color:rgba(255,255,255,0.28);font-size:11px;margin-left:4px;font-weight:500;">v2.0 Studio</div>
+              <div style="width:28px;height:28px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.35);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;">🎨</div>
+              <div style="width:28px;height:28px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.35);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;">⚡</div>
+              <div style="width:28px;height:28px;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.28);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;">🚀</div>
+              <div style="color:rgba(255,255,255,0.28);font-size:11px;margin-left:3px;font-weight:500;">v2.0 Studio</div>
             </div>`,
             opacity: 1, visible: true, locked: false,
             animations: [
-              { id: 'anim_icons1', name: 'Slide Up', start: 1750, duration: 800,
-                easing: 'cubic-bezier(0.22,1,0.36,1)', infinite: false, direction: 'normal', fill: 'forwards' }
+              { id: 'anim_icons1', name: 'Fade In', start: 1300, duration: 700,
+                easing: 'ease-out', direction: 'normal', fill: 'forwards' }
             ]
           }
         ]
@@ -3618,10 +3614,9 @@ document.addEventListener('DOMContentLoaded', () => {
           elNode.style.outline = `${sw}px solid ${sc}`;
         }
       } else {
-        // No LKF — clear any residual LKF inline styles from a previous render
+        // No LKF — clear only LKF-driven inline styles (never width/height)
         if (elNode._lkfStylesApplied) {
-          elNode.style.width = elNode.style.height = elNode.style.borderRadius =
-            elNode.style.outline = '';
+          elNode.style.outline = '';
           const tec = elNode.querySelector('.element-text');
           const sec = elNode.querySelector('.element-shape');
           if (tec) { tec.style.color = tec.style.fontSize = tec.style.letterSpacing = tec.style.lineHeight = ''; }
@@ -3631,15 +3626,13 @@ document.addEventListener('DOMContentLoaded', () => {
       elNode._lkfStylesApplied = lkfActive;
 
       // ── Fallback: nothing animating at all — restore base render state ─
+      // Only reset transform/opacity/filter/zoom. Never touch width/height/
+      // borderRadius — those are owned by renderCanvas inline styles.
       if (!anyPresetActive && !lkfActive) {
-        elNode.style.transform    = `rotate(${baseRotation}deg)`;
-        elNode.style.opacity      = String(baseOpacity);
-        elNode.style.filter       = '';
-        elNode.style.zoom         = '';
-        elNode.style.width        = '';
-        elNode.style.height       = '';
-        elNode.style.borderRadius = '';
-        elNode.style.outline      = '';
+        elNode.style.transform = `rotate(${baseRotation}deg)`;
+        elNode.style.opacity   = String(baseOpacity);
+        elNode.style.filter    = '';
+        elNode.style.zoom      = '';
       }
     });
   }
@@ -4116,8 +4109,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSceneControls();
   setupCanvasDeselect();
 
-  // Force default Studio mode on load
-  document.getElementById('modeBtnStudio').click();
+  // Open in Quick Preview mode on load
+  document.getElementById('modeBtnQuick').click();
   renderAll();
 
   // Retry centering until the wrapper has real dimensions (grid layout may take a few frames)
@@ -4126,11 +4119,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ok = centerCanvas();
     centerAttempts++;
     if (!ok && centerAttempts < 20) {
-      // Layout not ready yet — try again next frame
       requestAnimationFrame(tryCenterAndPlay);
     } else {
-      renderAll(); // re-render at correct zoom
-      setTimeout(() => playTimeline(), 80);
+      renderAll(); // re-render at correct zoom — shows design state, no auto-play
     }
   }
   requestAnimationFrame(tryCenterAndPlay);
